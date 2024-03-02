@@ -1,0 +1,10 @@
+
+# do not truck catalogs which do not contain source files
+*.cache
+*.hw
+*.ip_user_files
+*.runs
+*.sim
+
+# vivado project file
+*.xpr
