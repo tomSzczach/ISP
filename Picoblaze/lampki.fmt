@@ -1,0 +1,21 @@
+            ;
+            ; Pierwszy program na PicoBlaze
+            ;
+ loop_main: 
+            INPUT s0, 00
+            TEST s0, 00000001'b
+            JUMP NZ, pb_pressed
+            ; przycisk zwolniony
+            LOAD s0, 0F
+            OUTPUT s0, 03
+            JUMP loop_main
+            ; przycisk naciĹniÄty
+pb_pressed: 
+            LOAD s0, 00
+            OUTPUT s0, 01
+            LOAD s0, FF
+            OUTPUT s0, 02
+            JUMP loop_main
+            ;
+            ; Koniec
+            ;
