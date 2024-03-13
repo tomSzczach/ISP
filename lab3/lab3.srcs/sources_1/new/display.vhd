@@ -32,7 +32,8 @@ use IEEE.STD_LOGIC_1164.ALL;
 --use UNISIM.VComponents.all;
 
 entity display is
-    Generic ( clk_div_factor : integer := 100000 ); -- division factor of the system clock frequency
+    Generic (   clk_freq : integer := 100000000; -- clock frequency in Hz (default: 100 MHz)
+                work_freq : integer := 1000 ); -- working frequency in Hz of the display component (default: 1 kHz)
     Port ( clk_i : in STD_LOGIC; -- 100 MHz
            rst_i : in STD_LOGIC; -- async reset on '1' => switch on all segments
            digit_i : in STD_LOGIC_VECTOR (31 downto 0); -- AN3(31-24), AN2(23-16), AN1(15-8), AN0(7-0)
@@ -77,8 +78,8 @@ architecture Behavioral of display is
     
     -- SIGNALS
     signal current_LED : LED_enumerator := NO_LEDS;
-    signal mux_clk : STD_LOGIC := '0';
     signal clk_freq_div_cnt : integer := 0;
+    signal work_freq_clk_enable : STD_LOGIC := '0';
     
 begin
 
@@ -88,25 +89,23 @@ begin
         if rst_i = '1' then
             clk_freq_div_cnt <= 0;
         elsif rising_edge(clk_i) then
-            clk_freq_div_cnt <= clk_freq_div_cnt + 1;
-            
-            if (clk_freq_div_cnt = clk_div_factor - 1) then
+            if (clk_freq_div_cnt = clk_freq/work_freq) then
                 clk_freq_div_cnt <= 0;
-                mux_clk <= '0';
-            end if;
-            if (clk_freq_div_cnt = clk_div_factor/2 - 1) then
-                mux_clk <= '1';
+                work_freq_clk_enable <= '1';
+            else
+                clk_freq_div_cnt <= clk_freq_div_cnt + 1;
+                work_freq_clk_enable <= '0';
             end if;
         end if;
     end process clk_freq_divider;
     
 
     -- switch state of 'led7_an_o'
-    digit_switch: process(mux_clk, rst_i) is
+    digit_switch: process(clk_i, rst_i) is
     begin
         if rst_i = '1' then
             current_LED <= ALL_LEDS;
-        elsif mux_clk = '1' then
+        elsif rising_edge(clk_i) and work_freq_clk_enable = '1' then
             case current_LED is
                 when AN3 => current_LED <= AN2;
                 when AN2 => current_LED <= AN1;
