@@ -41,21 +41,24 @@ component top is
     Port ( clk_i : in STD_LOGIC;
            rst_i : in STD_LOGIC;
            button_i : in STD_LOGIC;
-           led: out STD_LOGIC_VECTOR (15 downto 0));
-           --led7_an_o : out STD_LOGIC_VECTOR (3 downto 0);
-           --led7_seg_o : out STD_LOGIC_VECTOR (7 downto 0));
+           --led: out STD_LOGIC_VECTOR (15 downto 0));
+           led7_an_o : out STD_LOGIC_VECTOR (3 downto 0);
+           led7_seg_o : out STD_LOGIC_VECTOR (7 downto 0));
            --- button_i : in STD_LOGIC_VECTOR (3 downto 0);
 end component top;
 
 signal clk_i,rst_i,button_i: STD_LOGIC := '0';
 --signal button_i :  STD_LOGIC_VECTOR (3 downto 0);
-signal led: STD_LOGIC_VECTOR (15 downto 0);
+--signal led: STD_LOGIC_VECTOR (15 downto 0);
+signal led7_an_o : STD_LOGIC_VECTOR (3 downto 0);
+signal led7_seg_o : STD_LOGIC_VECTOR (7 downto 0);
 
 begin
    uut: top port map (
    clk_i => clk_i,
    rst_i => rst_i,
-   led => led,
+   led7_an_o => led7_an_o,
+   led7_seg_o => led7_seg_o,
    button_i => button_i);
 
 clk_i <= not clk_i after 5 ns;
@@ -65,12 +68,13 @@ clk_i <= not clk_i after 5 ns;
         rst_i <= '1';
         wait for 20 ns;
         rst_i <= '0';
-    
+        wait for 100 ns;
+        
         loop
-            wait for 100 ns;
             button_i <= '1';
-            wait for 100 ns;
+            wait for 1 ms;
             button_i <= '0';
+            wait for 4 ms;
         end loop;      
      end process;
 end Behavioral;

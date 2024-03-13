@@ -35,13 +35,52 @@ entity top is
     Port ( clk_i : in STD_LOGIC;
            rst_i : in STD_LOGIC;
            button_i : in STD_LOGIC;
-           led: out STD_LOGIC_VECTOR (15 downto 0));
-           --led7_an_o : out STD_LOGIC_VECTOR (3 downto 0);
-           --led7_seg_o : out STD_LOGIC_VECTOR (7 downto 0));
+           --led: out STD_LOGIC_VECTOR (15 downto 0);
+           led7_an_o : out STD_LOGIC_VECTOR (3 downto 0);
+           led7_seg_o : out STD_LOGIC_VECTOR (7 downto 0));
            --- button_i : in STD_LOGIC_VECTOR (3 downto 0);
 end top;
 
 architecture Behavioral of top is
+
+    -- FUNCTIONS
+    function seven_seg(data_in: std_logic_vector(3 downto 0)) return std_logic_vector is
+        variable tmp : std_logic_vector(6 downto 0);
+    begin
+        case data_in is 
+           when "0000" => tmp := "0000001";   -- 0
+           when "0001" => tmp := "1001111";   -- 1
+           when "0010" => tmp := "0010010";   -- 2
+           when "0011" => tmp := "0000110";   -- 3
+           when "0100" => tmp := "1001100";   -- 4
+           when "0101" => tmp := "0100100";   -- 5
+           when "0110" => tmp := "0100000";   -- 6
+           when "0111" => tmp := "0001111";   -- 7
+           when "1000" => tmp := "0000000";   -- 8
+           when "1001" => tmp := "0000100";   -- 9
+           when "1010" => tmp := "0001000";   -- A
+           when "1011" => tmp := "1100000";   -- b
+           when "1100" => tmp := "0110001";   -- C
+           when "1101" => tmp := "1000010";   -- d
+           when "1110" => tmp := "0110000";   -- E
+           when "1111" => tmp := "0111000";   -- F
+           when others => tmp := "1111110";   -- -
+        end case;
+        return (tmp);
+    end function seven_seg;
+    -- /FUNCTIONS
+
+    signal digit_i : STD_LOGIC_VECTOR (31 downto 0);
+    
+    component display is
+        Port ( clk_i : in STD_LOGIC;
+               rst_i : in STD_LOGIC;
+               digit_i : in STD_LOGIC_VECTOR (31 downto 0);
+               led7_an_o : out STD_LOGIC_VECTOR (3 downto 0);
+               led7_seg_o : out STD_LOGIC_VECTOR (7 downto 0)
+           );
+    end component display;
+
   component kcpsm6 
     generic(                 hwbuild : std_logic_vector(7 downto 0) := X"00";
                     interrupt_vector : std_logic_vector(11 downto 0) := X"3FF";
@@ -101,6 +140,15 @@ signal       cpu_reset : std_logic;
 signal             rdl : std_logic; 
  
 begin
+    
+    comp_display: display port map(
+        clk_i => clk_i,
+        rst_i => rst_i,
+        digit_i => digit_i,
+        led7_an_o => led7_an_o,
+        led7_seg_o => led7_seg_o
+    );
+
   processor: kcpsm6
     generic map (                 hwbuild => X"00", 
                          interrupt_vector => X"7FF",
@@ -151,7 +199,9 @@ begin
 
         -- Write to output_port_w at port address 01 hex
         if port_id(0) = '1' then
-          led(7 downto 0) <= out_port;
+            digit_i <= (others => '1');
+            digit_i(7 downto 1) <= seven_seg(out_port(3 downto 0)); -- AN0 (najbardziej po prawej)
+            -- digit_i(15 downto 9) <= seven_seg(out_port(3 downto 0)); -- AN1 (drugi od prawej)
         end if;
 
 

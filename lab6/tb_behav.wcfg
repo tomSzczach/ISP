@@ -11,15 +11,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="0.000 ns"></ZoomStartTime>
-      <ZoomEndTime time="144.963 ns"></ZoomEndTime>
-      <Cursor1Time time="73.410 ns"></Cursor1Time>
+      <ZoomStartTime time="1,808.985 ns"></ZoomStartTime>
+      <ZoomEndTime time="2,038.204 ns"></ZoomEndTime>
+      <Cursor1Time time="2,000.000 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
       <NameColumnWidth column_width="340"></NameColumnWidth>
-      <ValueColumnWidth column_width="150"></ValueColumnWidth>
+      <ValueColumnWidth column_width="142"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="14" />
+   <WVObjectSize size="16" />
    <wvobject fp_name="/tb/clk_i" type="logic">
       <obj_property name="ElementShortName">clk_i</obj_property>
       <obj_property name="ObjectShortName">clk_i</obj_property>
@@ -31,10 +31,6 @@
    <wvobject fp_name="/tb/button_i" type="logic">
       <obj_property name="ElementShortName">button_i</obj_property>
       <obj_property name="ObjectShortName">button_i</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb/led" type="array">
-      <obj_property name="ElementShortName">led[15:0]</obj_property>
-      <obj_property name="ObjectShortName">led[15:0]</obj_property>
    </wvobject>
    <wvobject fp_name="/tb/uut/processor/address" type="array">
       <obj_property name="ElementShortName">address[11:0]</obj_property>
@@ -75,5 +71,17 @@
    <wvobject fp_name="/tb/uut/processor/sim_s1" type="array">
       <obj_property name="ElementShortName">sim_s1[7:0]</obj_property>
       <obj_property name="ObjectShortName">sim_s1[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/uut/led7_an_o" type="array">
+      <obj_property name="ElementShortName">led7_an_o[3:0]</obj_property>
+      <obj_property name="ObjectShortName">led7_an_o[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/uut/led7_seg_o" type="array">
+      <obj_property name="ElementShortName">led7_seg_o[7:0]</obj_property>
+      <obj_property name="ObjectShortName">led7_seg_o[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/uut/digit_i" type="array">
+      <obj_property name="ElementShortName">digit_i[31:0]</obj_property>
+      <obj_property name="ObjectShortName">digit_i[31:0]</obj_property>
    </wvobject>
 </wave_config>
