@@ -154,11 +154,6 @@ begin
           led(7 downto 0) <= out_port;
         end if;
 
-        -- Write to output_port_x at port address 02 hex
-        if port_id(1) = '1' then
-          led(15 downto 8) <= out_port;
-        end if;
-
 
       end if;
 
