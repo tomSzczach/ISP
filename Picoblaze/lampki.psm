@@ -10,7 +10,7 @@ oczekuj:
 
 	TEST s0, 00000010'b
 	JUMP NZ, zwieksz
-
+	AND s2, FD ; b1 już nie jest wciśnięty
 	;
 	OUTPUT s1, 01 ;port_id(0)??
 	JUMP oczekuj
@@ -24,6 +24,9 @@ zmniejsz:
 	JUMP oczekuj
 	
 zwieksz:
+	TEST s2, 00000010'b
+	JUMP NZ, oczekuj ; b1 już jest wciśnięty
+	OR s2, 02 ; b1 właśnie wciśnięty
 	ADD s1, 01
 	AND s1, 0F	
 	JUMP oczekuj
