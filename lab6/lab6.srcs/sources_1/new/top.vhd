@@ -183,7 +183,7 @@ begin
       input_ports: process(clk_i)
   begin
     if clk_i'event and clk_i = '1' then
-       in_port <= ( 0 => button_i, others => '0');
+       in_port <= ( 1 => button_i, others => '0');
     end if;
 
   end process input_ports;
