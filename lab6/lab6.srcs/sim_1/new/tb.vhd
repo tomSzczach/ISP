@@ -41,6 +41,7 @@ component top is
     Port ( clk_i : in STD_LOGIC;
            rst_i : in STD_LOGIC;
            button_i : in STD_LOGIC;
+           --button_i : in STD_LOGIC_VECTOR (3 downto 0);
            --led: out STD_LOGIC_VECTOR (15 downto 0));
            led7_an_o : out STD_LOGIC_VECTOR (3 downto 0);
            led7_seg_o : out STD_LOGIC_VECTOR (7 downto 0));
@@ -48,7 +49,7 @@ component top is
 end component top;
 
 signal clk_i,rst_i,button_i: STD_LOGIC := '0';
---signal button_i :  STD_LOGIC_VECTOR (3 downto 0);
+---signal button_i :  STD_LOGIC_VECTOR (3 downto 0);
 --signal led: STD_LOGIC_VECTOR (15 downto 0);
 signal led7_an_o : STD_LOGIC_VECTOR (3 downto 0);
 signal led7_seg_o : STD_LOGIC_VECTOR (7 downto 0);
