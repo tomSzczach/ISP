@@ -34,12 +34,9 @@ use IEEE.STD_LOGIC_1164.ALL;
 entity top is
     Port ( clk_i : in STD_LOGIC;
            rst_i : in STD_LOGIC;
-           button_i : in STD_LOGIC;
-          
-           --led: out STD_LOGIC_VECTOR (15 downto 0);
+           button_i : in STD_LOGIC_VECTOR (3 downto 0);          
            led7_an_o : out STD_LOGIC_VECTOR (3 downto 0);
            led7_seg_o : out STD_LOGIC_VECTOR (7 downto 0));
-           --- button_i : in STD_LOGIC_VECTOR (3 downto 0);
 end top;
 
 architecture Behavioral of top is
@@ -180,13 +177,18 @@ begin
                        rdl =>  open,
                        clk => clk_i);                      
 
-      input_ports: process(clk_i)
-  begin
-    if clk_i'event and clk_i = '1' then
-       in_port <= ( 1 => button_i, others => '0');
-    end if;
-
-  end process input_ports;
+    input_ports: process(clk_i)
+    begin
+        if clk_i'event and clk_i = '1' then
+            in_port <= ( 
+                3 => button_i(3),
+                2 => button_i(2), 
+                1 => button_i(1), 
+                0 => button_i(0), 
+                others => '0'
+            );
+        end if;
+    end process input_ports;
   
   
   
