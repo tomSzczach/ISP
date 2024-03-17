@@ -35,6 +35,7 @@ entity top is
     Port ( clk_i : in STD_LOGIC;
            rst_i : in STD_LOGIC;
            button_i : in STD_LOGIC_VECTOR (3 downto 0);          
+           --button_i : in STD_LOGIC;          
            led7_an_o : out STD_LOGIC_VECTOR (3 downto 0);
            led7_seg_o : out STD_LOGIC_VECTOR (7 downto 0));
 end top;
@@ -68,17 +69,6 @@ architecture Behavioral of top is
     end function seven_seg;
     -- /FUNCTIONS
 
-    signal digit_i : STD_LOGIC_VECTOR (31 downto 0);
-    
-    component display is
-        Port ( clk_i : in STD_LOGIC;
-               rst_i : in STD_LOGIC;
-               digit_i : in STD_LOGIC_VECTOR (31 downto 0);
-               led7_an_o : out STD_LOGIC_VECTOR (3 downto 0);
-               led7_seg_o : out STD_LOGIC_VECTOR (7 downto 0)
-           );
-    end component display;
-
   component kcpsm6 
     generic(                 hwbuild : std_logic_vector(7 downto 0) := X"00";
                     interrupt_vector : std_logic_vector(11 downto 0) := X"3FF";
@@ -111,6 +101,17 @@ architecture Behavioral of top is
                     clk : in std_logic);
   end component;
   
+     signal digit_i : STD_LOGIC_VECTOR (31 downto 0);
+    
+    component display is
+        Port ( clk_i : in STD_LOGIC;
+               rst_i : in STD_LOGIC;
+               digit_i : in STD_LOGIC_VECTOR (31 downto 0);
+               led7_an_o : out STD_LOGIC_VECTOR (3 downto 0);
+               led7_seg_o : out STD_LOGIC_VECTOR (7 downto 0)
+           );
+    end component display;
+  
   
 --
 -- Signals for connection of KCPSM6 and Program Memory.
@@ -138,14 +139,7 @@ signal       cpu_reset : std_logic;
 signal             rdl : std_logic; 
  
 begin
-    
-    comp_display: display port map(
-        clk_i => clk_i,
-        rst_i => rst_i,
-        digit_i => digit_i,
-        led7_an_o => led7_an_o,
-        led7_seg_o => led7_seg_o
-    );
+
 
   processor: kcpsm6
     generic map (                 hwbuild => X"00", 
@@ -176,7 +170,16 @@ begin
                     enable => bram_enable,
                        rdl =>  open,
                        clk => clk_i);                      
-
+    
+    comp_display: display port map(
+        clk_i => clk_i,
+        rst_i => rst_i,
+        digit_i => digit_i,
+        led7_an_o => led7_an_o,
+        led7_seg_o => led7_seg_o
+    );
+    
+    
     input_ports: process(clk_i)
     begin
         if clk_i'event and clk_i = '1' then
@@ -184,7 +187,7 @@ begin
                 3 => button_i(3),
                 2 => button_i(2), 
                 1 => button_i(1), 
-                0 => button_i(0), 
+                0 => button_i(0),
                 others => '0'
             );
         end if;

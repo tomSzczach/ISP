@@ -40,6 +40,7 @@ architecture Behavioral of tb is
 component top is
     Port ( clk_i : in STD_LOGIC;
            rst_i : in STD_LOGIC;
+           --button_i : in STD_LOGIC;
            button_i : in STD_LOGIC_VECTOR (3 downto 0);
            --led: out STD_LOGIC_VECTOR (15 downto 0));
            led7_an_o : out STD_LOGIC_VECTOR (3 downto 0);
@@ -47,7 +48,7 @@ component top is
 end component top;
 
 signal clk_i,rst_i: STD_LOGIC := '0';
-signal button_i :  STD_LOGIC_VECTOR (3 downto 0);
+signal button_i :  STD_LOGIC_VECTOR (3 downto 0):= "0000";
 --signal led: STD_LOGIC_VECTOR (15 downto 0);
 signal led7_an_o : STD_LOGIC_VECTOR (3 downto 0);
 signal led7_seg_o : STD_LOGIC_VECTOR (7 downto 0);
@@ -70,7 +71,8 @@ clk_i <= not clk_i after 5 ns;
         wait for 100 ns;
         
         loop
-            button_i <= "0001";
+            button_i <= "0010";
+            --button_i <= '1';
             wait for 1 ms;
             button_i <= "0000";
             wait for 4 ms;
