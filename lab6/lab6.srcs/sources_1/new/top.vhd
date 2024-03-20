@@ -41,6 +41,13 @@ entity top is
 end top;
 
 architecture Behavioral of top is
+    
+    -- TYPES
+    type int_vector is array (Natural range <>) of integer;
+    
+    -- CONSTANTS
+    constant btn_delay_const : integer := 100000;
+        -- opóŸnienie (1ms) syg. stabilnego w cyklach zegara (100MHz)
 
     -- FUNCTIONS
     function seven_seg(data_in: std_logic_vector(3 downto 0)) return std_logic_vector is
@@ -67,41 +74,38 @@ architecture Behavioral of top is
         end case;
         return (tmp);
     end function seven_seg;
-    -- /FUNCTIONS
-
-  component kcpsm6 
-    generic(                 hwbuild : std_logic_vector(7 downto 0) := X"00";
-                    interrupt_vector : std_logic_vector(11 downto 0) := X"3FF";
-             scratch_pad_memory_size : integer := 64);
-    port (                   address : out std_logic_vector(11 downto 0);
-                         instruction : in std_logic_vector(17 downto 0);
-                         bram_enable : out std_logic;
-                             in_port : in std_logic_vector(7 downto 0);
-                            out_port : out std_logic_vector(7 downto 0);
-                             port_id : out std_logic_vector(7 downto 0);
-                        write_strobe : out std_logic;
-                      k_write_strobe : out std_logic;
-                         read_strobe : out std_logic;
-                           interrupt : in std_logic;
-                       interrupt_ack : out std_logic;
-                               sleep : in std_logic;
-                               reset : in std_logic;
-                                 clk : in std_logic);
-  end component;
+    
+    -- COMPONENTS
+    component kcpsm6 
+        generic(                 hwbuild : std_logic_vector(7 downto 0) := X"00";
+                        interrupt_vector : std_logic_vector(11 downto 0) := X"3FF";
+                 scratch_pad_memory_size : integer := 64);
+        port (                   address : out std_logic_vector(11 downto 0);
+                             instruction : in std_logic_vector(17 downto 0);
+                             bram_enable : out std_logic;
+                                 in_port : in std_logic_vector(7 downto 0);
+                                out_port : out std_logic_vector(7 downto 0);
+                                 port_id : out std_logic_vector(7 downto 0);
+                            write_strobe : out std_logic;
+                          k_write_strobe : out std_logic;
+                             read_strobe : out std_logic;
+                               interrupt : in std_logic;
+                           interrupt_ack : out std_logic;
+                                   sleep : in std_logic;
+                                   reset : in std_logic;
+                                     clk : in std_logic);
+    end component;
   
-  
-   component lampki                             
-    generic(             C_FAMILY : string := "S6"; 
-                C_RAM_SIZE_KWORDS : integer := 1;
-             C_JTAG_LOADER_ENABLE : integer := 0);
-    Port (      address : in std_logic_vector(11 downto 0);
-            instruction : out std_logic_vector(17 downto 0);
-                 enable : in std_logic;
-                    rdl : out std_logic;                    
-                    clk : in std_logic);
-  end component;
-  
-     signal digit_i : STD_LOGIC_VECTOR (31 downto 0);
+    component lampki                             
+        generic(             C_FAMILY : string := "S6"; 
+                    C_RAM_SIZE_KWORDS : integer := 1;
+                 C_JTAG_LOADER_ENABLE : integer := 0);
+        Port (      address : in std_logic_vector(11 downto 0);
+                instruction : out std_logic_vector(17 downto 0);
+                     enable : in std_logic;
+                        rdl : out std_logic;                    
+                        clk : in std_logic);
+    end component;
     
     component display is
         Port ( clk_i : in STD_LOGIC;
@@ -111,65 +115,66 @@ architecture Behavioral of top is
                led7_seg_o : out STD_LOGIC_VECTOR (7 downto 0)
            );
     end component display;
-  
-  
---
--- Signals for connection of KCPSM6 and Program Memory.
---
+    
+    -- SIGNALS
+    signal digit_i : STD_LOGIC_VECTOR (31 downto 0);
+    
+    signal button_sync_i : STD_LOGIC_VECTOR (button_i'range) := (others => '0');
+    signal button_stable_i : STD_LOGIC_VECTOR (button_i'range) := (others => '0');
+    
+    --
+    -- Signals for connection of KCPSM6 and Program Memory.
+    --
+    signal         address : std_logic_vector(11 downto 0);
+    signal     instruction : std_logic_vector(17 downto 0);
+    signal     bram_enable : std_logic;
+    signal         in_port : std_logic_vector(7 downto 0);
+    signal        out_port : std_logic_vector(7 downto 0);
+    signal         port_id : std_logic_vector(7 downto 0);
+    signal    write_strobe : std_logic;
+    signal  k_write_strobe : std_logic;
+    signal     read_strobe : std_logic;
+    signal       interrupt : std_logic;
+    signal   interrupt_ack : std_logic;
+    signal    kcpsm6_sleep : std_logic;
+    signal    kcpsm6_reset : std_logic;
 
-signal         address : std_logic_vector(11 downto 0);
-signal     instruction : std_logic_vector(17 downto 0);
-signal     bram_enable : std_logic;
-signal         in_port : std_logic_vector(7 downto 0);
-signal        out_port : std_logic_vector(7 downto 0);
-signal         port_id : std_logic_vector(7 downto 0);
-signal    write_strobe : std_logic;
-signal  k_write_strobe : std_logic;
-signal     read_strobe : std_logic;
-signal       interrupt : std_logic;
-signal   interrupt_ack : std_logic;
-signal    kcpsm6_sleep : std_logic;
-signal    kcpsm6_reset : std_logic;
-
---
--- Some additional signals are required if your system also needs to reset KCPSM6. 
---
-
-signal       cpu_reset : std_logic;
-signal             rdl : std_logic; 
+    --
+    -- Some additional signals are required if your system also needs to reset KCPSM6. 
+    --
+    signal       cpu_reset : std_logic;
+    signal             rdl : std_logic; 
  
 begin
 
-
-  processor: kcpsm6
-    generic map (                 hwbuild => X"00", 
-                         interrupt_vector => X"7FF",
-                  scratch_pad_memory_size => 64)
-    port map(      address => address,
-               instruction => instruction,
-               bram_enable => bram_enable,
-                   port_id => port_id,
-              write_strobe => write_strobe,
-            k_write_strobe => open, --dla OUT
-                  out_port => out_port,
-               read_strobe => open, --DLA urz¹dzeñ IO
-                   in_port => in_port,
-                 interrupt => '0',
-             interrupt_ack => open,
-                     sleep => '0',
-                     reset => rst_i,
-                       clk => clk_i);
-                       
-                       
-   program_rom: lampki                   --Name to match your PSM file
-    generic map(             C_FAMILY => "7S",   --Family 'S6', 'V6' or '7S'
-                    C_RAM_SIZE_KWORDS => 2,      --Program size '1', '2' or '4'
-                 C_JTAG_LOADER_ENABLE => 0)      --Include JTAG Loader when set to '1' 
-    port map(      address => address,      
-               instruction => instruction,
-                    enable => bram_enable,
-                       rdl =>  open,
-                       clk => clk_i);                      
+    processor: kcpsm6
+        generic map (                 hwbuild => X"00", 
+                             interrupt_vector => X"7FF",
+                      scratch_pad_memory_size => 64)
+        port map(      address => address,
+                   instruction => instruction,
+                   bram_enable => bram_enable,
+                       port_id => port_id,
+                  write_strobe => write_strobe,
+                k_write_strobe => open, --dla OUT
+                      out_port => out_port,
+                   read_strobe => open, --DLA urz¹dzeñ IO
+                       in_port => in_port,
+                     interrupt => '0',
+                 interrupt_ack => open,
+                         sleep => '0',
+                         reset => rst_i,
+                           clk => clk_i);
+                                         
+    program_rom: lampki                   --Name to match your PSM file
+        generic map(             C_FAMILY => "7S",   --Family 'S6', 'V6' or '7S'
+                        C_RAM_SIZE_KWORDS => 2,      --Program size '1', '2' or '4'
+                     C_JTAG_LOADER_ENABLE => 0)      --Include JTAG Loader when set to '1' 
+        port map(      address => address,      
+                   instruction => instruction,
+                        enable => bram_enable,
+                           rdl =>  open,
+                           clk => clk_i);                      
     
     comp_display: display port map(
         clk_i => clk_i,
@@ -179,41 +184,60 @@ begin
         led7_seg_o => led7_seg_o
     );
     
+    button_stabilizer: process(clk_i) is 
+        variable delay_cntr : int_vector (button_i'range) := (others => 0);
+    begin
+        if rising_edge (clk_i) then
+            button_sync_i <= button_i;
+            
+            for i in button_i'range loop
+                if (button_sync_i(i) = button_stable_i(i)) then
+                    delay_cntr(i) := 0;
+                else
+                    delay_cntr(i) := delay_cntr(i) + 1;
+                end if;
+            end loop;
+            
+            for i in button_i'range loop
+                if (delay_cntr(i) = btn_delay_const) then
+                    button_stable_i(i) <= button_sync_i(i);
+                    delay_cntr(i) := 0;
+                end if;
+            end loop;
+        
+        end if;
+    end process;
     
     input_ports: process(clk_i)
     begin
         if clk_i'event and clk_i = '1' then
             in_port <= ( 
-                3 => button_i(3),
-                2 => button_i(2), 
-                1 => button_i(1), 
-                0 => button_i(0),
+                3 => button_stable_i(3),
+                2 => button_stable_i(2), 
+                1 => button_stable_i(1), 
+                0 => button_stable_i(0),
                 others => '0'
             );
         end if;
     end process input_ports;
   
-  
-  
-  output_ports: process(clk_i)
-  begin
+    output_ports: process(clk_i)
+    begin
 
-    if clk_i'event and clk_i = '1' then
+        if clk_i'event and clk_i = '1' then
 
-      -- 'write_strobe' is used to qualify all writes to general output ports.
-      if write_strobe = '1' then
+            -- 'write_strobe' is used to qualify all writes to general output ports.
+            if write_strobe = '1' then
 
-        -- Write to output_port_w at port address 01 hex
-        if port_id(0) = '1' then
-            digit_i <= (others => '1');
-            digit_i(7 downto 1) <= seven_seg(out_port(3 downto 0)); -- AN0 (najbardziej po prawej)
-            -- digit_i(15 downto 9) <= seven_seg(out_port(3 downto 0)); -- AN1 (drugi od prawej)
-        end if;
+                -- Write to output_port_w at port address 01 hex
+                if port_id(0) = '1' then
+                    digit_i <= (others => '1');
+                    digit_i(7 downto 1) <= seven_seg(out_port(3 downto 0)); -- AN0 (najbardziej po prawej)
+                    -- digit_i(15 downto 9) <= seven_seg(out_port(3 downto 0)); -- AN1 (drugi od prawej)
+                end if;
 
-
-      end if;
-
-    end if; 
-
-  end process output_ports;
+            end if;
+        end if; 
+    end process output_ports;
+    
 end Behavioral;
