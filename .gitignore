@@ -1,8 +1,21 @@
 
-# do not truck catalogs which do not contain source files
+## do not truck catalogs which do not contain source files
 *.cache
 *.hw
 *.ip_user_files
 *.runs
 *.sim
 
+## do not truck unnecessary files
+
+# design checkpoints
+*.dcp
+
+# log file captures the contents of the messages created from running Vivado IDE commands
+*.log
+
+# journal file (vivado.jou) captures the Tcl commands from a session
+*.jou
+
+# steps to reproduce (STR) file provides useful information about the actions taken in the Vivado IDE prior to the error
+*.str
