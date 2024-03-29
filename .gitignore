@@ -19,3 +19,6 @@
 
 # steps to reproduce (STR) file provides useful information about the actions taken in the Vivado IDE prior to the error
 *.str
+
+# pdf files (documents, manuals, etc.)
+*.pdf
