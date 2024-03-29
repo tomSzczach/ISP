@@ -84,7 +84,6 @@ architecture Behavioral of rs232_port_monitor is
     end function seven_seg;
 
     -- SIGNALS
-    signal RXD_sync_reg : STD_LOGIC := '0';
     signal RXD_sync : STD_LOGIC := '0';
     
     signal curr_recv_state : RECV_STATE := STOP;
@@ -97,16 +96,13 @@ architecture Behavioral of rs232_port_monitor is
     
 begin
 
-    RXD_synchronized_registered:
+    RXD_synchronized:
     process(clk_i)
     begin
         if rising_edge(clk_i) then
-            RXD_sync_reg <= RXD_i;
+            RXD_sync <= RXD_i;
         end if;
     end process;
-    
-    RXD_synchronized:
-    RXD_sync <= RXD_sync_reg;
     
     state_detector:
     process(clk_i, rst_i)
@@ -141,7 +137,9 @@ begin
             
         elsif rising_edge(clk_i) then
         
-            if (bit_time_cnt = bit_duration) then
+            if (RXD_sync = '0') and (curr_recv_state = NO_DATA) then
+                bit_time_cnt <= 1;
+            elsif (bit_time_cnt = bit_duration) then
                 bit_time_cnt <= 1;
             else
                 bit_time_cnt <= bit_time_cnt + 1;

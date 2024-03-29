@@ -11,15 +11,15 @@
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="1,808.985 ns"></ZoomStartTime>
-      <ZoomEndTime time="2,038.204 ns"></ZoomEndTime>
-      <Cursor1Time time="2,000.000 ns"></Cursor1Time>
+      <ZoomStartTime time="0.000000000 ms"></ZoomStartTime>
+      <ZoomEndTime time="0.604562058 ms"></ZoomEndTime>
+      <Cursor1Time time="10.001000000 ms"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="340"></NameColumnWidth>
-      <ValueColumnWidth column_width="142"></ValueColumnWidth>
+      <NameColumnWidth column_width="263"></NameColumnWidth>
+      <ValueColumnWidth column_width="58"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="16" />
+   <WVObjectSize size="17" />
    <wvobject fp_name="/tb/clk_i" type="logic">
       <obj_property name="ElementShortName">clk_i</obj_property>
       <obj_property name="ObjectShortName">clk_i</obj_property>
@@ -28,9 +28,13 @@
       <obj_property name="ElementShortName">rst_i</obj_property>
       <obj_property name="ObjectShortName">rst_i</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb/button_i" type="logic">
-      <obj_property name="ElementShortName">button_i</obj_property>
-      <obj_property name="ObjectShortName">button_i</obj_property>
+   <wvobject fp_name="/tb/button_i" type="array">
+      <obj_property name="ElementShortName">button_i[3:0]</obj_property>
+      <obj_property name="ObjectShortName">button_i[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/uut/button_stable_i" type="array">
+      <obj_property name="ElementShortName">button_stable_i[3:0]</obj_property>
+      <obj_property name="ObjectShortName">button_stable_i[3:0]</obj_property>
    </wvobject>
    <wvobject fp_name="/tb/uut/processor/address" type="array">
       <obj_property name="ElementShortName">address[11:0]</obj_property>
