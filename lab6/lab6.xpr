@@ -4,7 +4,7 @@
 <!-- Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.                   -->
 <!-- Copyright 2022-2023 Advanced Micro Devices, Inc. All Rights Reserved.   -->
 
-<Project Product="Vivado" Version="7" Minor="65" Path="C:/Users/Tomasz/DATA/CODING/ISP/lab6/lab6.xpr">
+<Project Product="Vivado" Version="7" Minor="65" Path="D:/PG/6sys/ISP/Laby/lab6/lab6.xpr">
   <DefaultLaunch Dir="$PRUNDIR"/>
   <Configuration>
     <Option Name="Id" Val="1803fc3a1b164a66a5698e7555acb3e3"/>
@@ -107,14 +107,15 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../Picoblaze/lampki.vhd">
+      <File Path="$PSRCDIR/sources_1/new/top.vhd">
         <FileInfo>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PSRCDIR/sources_1/new/top.vhd">
+      <File Path="$PPRDIR/../Picoblaze/lampki.vhd">
         <FileInfo>
+          <Attr Name="AutoDisabled" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
