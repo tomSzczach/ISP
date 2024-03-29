@@ -44,8 +44,14 @@ architecture Behavioral of top is
 
     -- SIGNALS
     signal rst_off : STD_LOGIC := '0';
-    signal recv_ASCII : STD_LOGIC_VECTOR (7 downto 0) := (others => '0');
-    signal recv_ASCII_enable : STD_LOGIC := '0';
+    
+    signal recv_data : STD_LOGIC_VECTOR (7 downto 0) := (others => '0');
+    signal write_to_buffer_enable : STD_LOGIC := '0';
+    
+    signal read_data : STD_LOGIC_VECTOR (7 downto 0) := (others => '0');
+    signal read_from_buffer_enable : STD_LOGIC := '1';
+    signal is_buffer_reading : STD_LOGIC := '0';
+    
     signal display_hex_value : STD_LOGIC_VECTOR (15 downto 0) := (others => '0');
     
     -- COMPONENTS
@@ -70,6 +76,19 @@ architecture Behavioral of top is
         led7_seg_o : out STD_LOGIC_VECTOR (7 downto 0)  
       );
     END COMPONENT;
+    
+    COMPONENT fifo_mem_service
+      PORT ( 
+        clk_i : in STD_LOGIC;
+        rst_i : in STD_LOGIC;
+        writing_to_buffer : in STD_LOGIC;
+        data_to_write : in STD_LOGIC_VECTOR (7 downto 0);
+        reading_from_buffer_enable : in STD_LOGIC;
+        buffer_is_reading : out STD_LOGIC;
+        data_to_read : out STD_LOGIC_VECTOR (7 downto 0);
+        is_overflow : out STD_LOGIC := '0'
+      );
+    END COMPONENT;
 
 begin
 
@@ -78,8 +97,8 @@ begin
         clk_i => clk_i,
         rst_i => rst_off,
         RXD_i => RXD_i,
-        recv_ASCII_o => recv_ASCII,
-        recv_ASCII_enable_o => recv_ASCII_enable
+        recv_ASCII_o => recv_data,
+        recv_ASCII_enable_o => write_to_buffer_enable
       );
       
     display_service : display
@@ -91,6 +110,18 @@ begin
         enabling_flags_i => "0011", 
         led7_an_o => led7_an_o,     
         led7_seg_o => led7_seg_o 
+      );
+      
+    data_buffer_service : fifo_mem_service
+      PORT MAP (
+        clk_i => clk_i,
+        rst_i => rst_off,
+        writing_to_buffer => write_to_buffer_enable,
+        data_to_write => recv_data,
+        reading_from_buffer_enable => read_from_buffer_enable,
+        buffer_is_reading => is_buffer_reading,
+        data_to_read => read_data,
+        is_overflow => ld0
       );
 
 
