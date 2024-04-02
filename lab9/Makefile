@@ -1,8 +1,8 @@
 # Simple Makefile
-TARGET = johnson
-SYSTEMC = /usr/local/systemc-2.2
-INCDIR = -I. -I/usr/local/systemc-2.2/include
-LIBDIR = -L. -L/usr/local/systemc-2.2/lib-cygwin
+TARGET = counter
+SYSTEMC = /usr/local/systemc-2.3.1
+INCDIR = -I. -I/usr/local/systemc-2.3.1/include
+LIBDIR = -L. -L/usr/local/systemc-2.3.1/lib-linux64
 LIBS   = -lsystemc -lm
 
 CC     = g++
