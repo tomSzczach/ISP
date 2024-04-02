@@ -96,7 +96,7 @@ architecture Behavioral of top is
                                      clk : in std_logic);
     end component;
   
-    component lampki                             
+    component program_ext                             
         generic(             C_FAMILY : string := "S6"; 
                     C_RAM_SIZE_KWORDS : integer := 1;
                  C_JTAG_LOADER_ENABLE : integer := 0);
@@ -117,8 +117,7 @@ architecture Behavioral of top is
     end component display;
     
     -- SIGNALS
-    signal digit_i : STD_LOGIC_VECTOR (31 downto 0);
-    
+    signal digit_i : STD_LOGIC_VECTOR (31 downto 0) := (others => '0');
     signal button_sync_i : STD_LOGIC_VECTOR (button_i'range) := (others => '0');
     signal button_stable_i : STD_LOGIC_VECTOR (button_i'range) := (others => '0');
     
@@ -166,7 +165,7 @@ begin
                          reset => rst_i,
                            clk => clk_i);
                                          
-    program_rom: lampki                   --Name to match your PSM file
+    program_rom: program_ext                   --Name to match your PSM file
         generic map(             C_FAMILY => "7S",   --Family 'S6', 'V6' or '7S'
                         C_RAM_SIZE_KWORDS => 2,      --Program size '1', '2' or '4'
                      C_JTAG_LOADER_ENABLE => 0)      --Include JTAG Loader when set to '1' 
@@ -223,19 +222,31 @@ begin
   
     output_ports: process(clk_i)
     begin
-
+---digit_i <= (others => '1');
         if clk_i'event and clk_i = '1' then
 
             -- 'write_strobe' is used to qualify all writes to general output ports.
             if write_strobe = '1' then
-
                 -- Write to output_port_w at port address 01 hex
                 if port_id(0) = '1' then
-                    digit_i <= (others => '1');
                     digit_i(7 downto 1) <= seven_seg(out_port(3 downto 0)); -- AN0 (najbardziej po prawej)
-                    -- digit_i(15 downto 9) <= seven_seg(out_port(3 downto 0)); -- AN1 (drugi od prawej)
                 end if;
-
+        
+                -- Write to output_port_x at port address 02 hex
+                if port_id(1) = '1' then             
+                    digit_i(15 downto 9) <= seven_seg(out_port(3 downto 0)); -- AN1 (drugi od prawej)
+                end if;
+        
+                -- Write to output_port_y at port address 04 hex
+                if port_id(2) = '1' then
+                    digit_i(23 downto 17) <= seven_seg(out_port(3 downto 0)); -- AN1 (drugi od prawej)
+                end if;
+        
+                -- Write to output_port_z at port address 08 hex
+                if port_id(3) = '1' then
+                  digit_i(31 downto 25) <= seven_seg(out_port(3 downto 0)); -- AN1 (drugi od prawej)
+                end if;
+                
             end if;
         end if; 
     end process output_ports;
