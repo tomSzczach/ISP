@@ -128,6 +128,9 @@ architecture Behavioral of top is
     
     signal working_mode : STD_LOGIC := '0';
     
+    signal is_blink : STD_LOGIC := '0';
+    signal focus_flags : STD_LOGIC_VECTOR (3 downto 0) := (others => '0');
+    
     signal AN0_val : STD_LOGIC_VECTOR (3 downto 0) := (others => '0');
     signal AN1_val : STD_LOGIC_VECTOR (3 downto 0) := (others => '0');
     signal AN2_val : STD_LOGIC_VECTOR (3 downto 0) := (others => '0');
@@ -254,6 +257,32 @@ begin
         end if;
     end process;
     
+    -- Switch on/off after every focused_digit_blink_period_const/2 time
+    BLINKING_TIME_COUNTER:
+    process(clk_i, rst_i)
+        variable blink_cntr : INTEGER := 0;
+    begin
+        if rst_i = '1' then
+            blink_cntr := 0;
+            is_blink <= '0';
+            
+        elsif rising_edge (clk_i) then
+        
+            -- increment counter
+            if blink_cntr = focused_digit_blink_period_const-1 then
+                blink_cntr := 0;                
+            else
+                blink_cntr := blink_cntr + 1;                
+            end if;
+            
+            -- toggle state
+            if (blink_cntr = 0) or (blink_cntr = focused_digit_blink_period_const/2) then
+                is_blink <= not is_blink;    
+            end if;
+        
+        end if;
+    end process;
+    
     
     INPUT_PORTS:
     process(clk_i, rst_i)
@@ -284,6 +313,7 @@ begin
             AN1_val <= (others => '0');
             AN2_val <= (others => '0');
             AN3_val <= (others => '0');
+            focus_flags <= (others => '0');
             
         elsif rising_edge (clk_i) then
 
@@ -293,27 +323,56 @@ begin
                 -- Write to output_port_w at port address 01 hex
                 if port_id(0) = '1' then
                     AN0_val <= out_port(3 downto 0);
-                    digit_i(7 downto 1) <= seven_seg(out_port(3 downto 0)); -- AN0 (najbardziej po prawej)
+                    
+                    if is_blink = '1' and focus_flags(0) = '1' then
+                        digit_i(7 downto 1) <= (others => '1');
+                    else 
+                        digit_i(7 downto 1) <= seven_seg(out_port(3 downto 0)); -- AN0 (najbardziej po prawej)
+                    end if;
+    
                 end if;
         
                 -- Write to output_port_x at port address 02 hex
                 if port_id(1) = '1' then  
-                    AN1_val <= out_port(3 downto 0);           
-                    digit_i(15 downto 9) <= seven_seg(out_port(3 downto 0)); -- AN1 (drugi od prawej)
+                    AN1_val <= out_port(3 downto 0);      
+                    
+                    if is_blink = '1' and focus_flags(1) = '1' then
+                        digit_i(15 downto 9) <= (others => '1');
+                    else    
+                        digit_i(15 downto 9) <= seven_seg(out_port(3 downto 0)); -- AN1 (drugi od prawej)
+                    end if;
+                    
                 end if;
         
                 -- Write to output_port_y at port address 04 hex
                 if port_id(2) = '1' then
                     AN2_val <= out_port(3 downto 0);
-                    digit_i(23 downto 17) <= seven_seg(out_port(3 downto 0)); -- AN1 (drugi od prawej)
+                    
+                    if is_blink = '1' and focus_flags(2) = '1' then
+                        digit_i(23 downto 17) <= (others => '1');
+                    else 
+                        digit_i(23 downto 17) <= seven_seg(out_port(3 downto 0)); -- AN2 (drugi od levej)
+                    end if;
+                
                 end if;
         
                 -- Write to output_port_z at port address 08 hex
                 if port_id(3) = '1' then
-                  AN3_val <= out_port(3 downto 0);
-                  digit_i(31 downto 25) <= seven_seg(out_port(3 downto 0)); -- AN1 (drugi od prawej)
+                    AN3_val <= out_port(3 downto 0);
+                    
+                    if is_blink = '1' and focus_flags(3) = '1' then
+                        digit_i(31 downto 25) <= (others => '1');
+                    else 
+                        digit_i(31 downto 25) <= seven_seg(out_port(3 downto 0)); -- AN3 (najbardziej po lewej)
+                    end if;
+               
                 end if;
                 
+                -- Write to output_port at port address 16 hex
+                if port_id(4) = '1' then
+                    focus_flags <= out_port(3 downto 0);                    
+                end if;
+                              
             end if;
         end if; 
     end process output_ports;
