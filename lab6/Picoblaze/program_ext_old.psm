@@ -1,0 +1,72 @@
+start:
+	LOAD s1, 00 ; [7..4] flagi focusu, [3..0] wartosc poj. wyswietlacza
+	LOAD s2, 00 ; stan buttonów w poprzedniej iteracji
+	LOAD s3, 01 ; numer portu, 1, 2, 4, 8
+oczekuj:
+	INPUT s0, 00 ; czytaj input
+	TEST s0, 80	; skip bo nie ma focusu
+	JUMP Z, skip
+	
+	
+	TEST s0, 00000001'b
+	JUMP NZ, zmniejsz_liczbe
+	AND s2, FE ; b0 już nie jest wciśnięty
+
+	TEST s0, 00000010'b
+	JUMP NZ, zwieksz_liczbe
+	AND s2, FD ; b1 już nie jest wciśnięty
+	
+	
+	TEST s0, 00000100'b
+	JUMP NZ, zmniejsz_led
+	AND s2, FB ; b2 już nie jest wciśnięty
+
+	TEST s0, 00001000'b
+	JUMP NZ, zwieksz_led
+	AND s2, F7 ; b3 już nie jest wciśnięty
+	;
+skip:
+	LOAD s4, s3
+	SL0 s4
+	SL0 s4
+	SL0 s4
+	SL0 s4
+	OR s1, s4
+	OUTPUT s1, (s3) ;wyslij dane na odpowiedni port
+	JUMP oczekuj
+	
+zmniejsz_liczbe:
+	TEST s2, 00000001'b
+	JUMP NZ, skip ; b0 już jest wciśnięty
+	OR s2, 00000001'b ; b0 właśnie wciśnięty
+	SUB s1, 01
+	AND s1, 0F		
+	JUMP skip
+	
+zwieksz_liczbe:
+	TEST s2, 00000010'b
+	JUMP NZ, skip ; b1 już jest wciśnięty
+	OR s2, 00000010'b ; b1 właśnie wciśnięty
+	ADD s1, 01
+	AND s1, 0F	
+	JUMP skip
+	
+zmniejsz_led:
+	TEST s2, 00000100'b
+	JUMP NZ, skip ; b2 już jest wciśnięty
+	OR s2, 00000100'b ; b2 właśnie wciśnięty
+	
+	TEST s3, 01
+	JUMP NZ, skip
+	SR0 s3
+	JUMP skip	
+	
+zwieksz_led:
+	TEST s2, 00001000'b
+	JUMP NZ, skip ; b3 już jest wciśnięty
+	OR s2, 00001000'b ; b3 właśnie wciśnięty
+	
+	TEST s3, 08
+	JUMP NZ, skip
+	SL0 s3
+	JUMP skip

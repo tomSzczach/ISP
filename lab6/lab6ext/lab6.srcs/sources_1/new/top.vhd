@@ -46,8 +46,14 @@ architecture Behavioral of top is
     type int_vector is array (Natural range <>) of integer;
     
     -- CONSTANTS
-    constant btn_delay_const : integer := 100000;
-        -- opóŸnienie (1ms) syg. stabilnego w cyklach zegara (100MHz)
+    constant btn_delay_const : integer := 20000;
+        -- opóŸnienie (0.2ms) syg. stabilnego liczone w cyklach zegara (100MHz)
+    constant mode_change_time_const : integer := 150000;                    -- current value is for testing purposes
+        -- czas trwania wciœniêcia BTNL (1.5ms), aby zmieniæ tryb prac          -- change before release on production       
+    constant focused_digit_blink_period_const : integer := 100000;          -- current value is for testing purposes
+        -- okres migania (1ms) cyfry, która jest sfokusowana                    -- change before release on production 
+    constant edit_mode : std_logic := '1';    
+    
 
     -- FUNCTIONS
     function seven_seg(data_in: std_logic_vector(3 downto 0)) return std_logic_vector is
@@ -117,9 +123,20 @@ architecture Behavioral of top is
     end component display;
     
     -- SIGNALS
-    signal digit_i : STD_LOGIC_VECTOR (31 downto 0) := (others => '0');
+    signal digit_i : STD_LOGIC_VECTOR (31 downto 0) := (others => '1');
+    
     signal button_sync_i : STD_LOGIC_VECTOR (button_i'range) := (others => '0');
     signal button_stable_i : STD_LOGIC_VECTOR (button_i'range) := (others => '0');
+    
+    signal working_mode : STD_LOGIC := '0';
+    
+    signal is_blink : STD_LOGIC := '0';
+    signal focus_flags : STD_LOGIC_VECTOR (3 downto 0) := (others => '0');
+    
+    signal AN0_val : STD_LOGIC_VECTOR (3 downto 0) := (others => '0');
+    signal AN1_val : STD_LOGIC_VECTOR (3 downto 0) := (others => '0');
+    signal AN2_val : STD_LOGIC_VECTOR (3 downto 0) := (others => '0');
+    signal AN3_val : STD_LOGIC_VECTOR (3 downto 0) := (others => '0');
     
     --
     -- Signals for connection of KCPSM6 and Program Memory.
@@ -183,10 +200,17 @@ begin
         led7_seg_o => led7_seg_o
     );
     
-    button_stabilizer: process(clk_i) is 
+    
+    BUTTON_STABILIZER:
+    process(clk_i, rst_i) is 
         variable delay_cntr : int_vector (button_i'range) := (others => 0);
     begin
-        if rising_edge (clk_i) then
+        if rst_i = '1' then
+            delay_cntr := (others => 0);
+            button_sync_i <= (others => '0');
+            button_stable_i <= (others => '0');
+            
+        elsif rising_edge (clk_i) then
             button_sync_i <= button_i;
             
             for i in button_i'range loop
@@ -207,46 +231,150 @@ begin
         end if;
     end process;
     
-    input_ports: process(clk_i)
+    -- There are 2 working modes described by
+    -- '0' = display mode
+    -- '1' = edit mode
+    -- Mode is change on button(3) press lasting 0.5s
+    MODE_SWITCH:
+    process(clk_i, rst_i) is
+        variable press_cntr : INTEGER := 0;
     begin
-        if clk_i'event and clk_i = '1' then
+        if rst_i = '1' then
+            press_cntr := 0;
+            working_mode <= '0';
+        
+        elsif rising_edge (clk_i) then
+            
+            if button_stable_i(3) = '1' then
+                press_cntr := press_cntr + 1;                
+            else
+                press_cntr := 0;                
+            end if;
+            
+            if press_cntr = mode_change_time_const then
+                working_mode <= not working_mode;
+                press_cntr := 0;
+            end if;
+            
+        end if;
+    end process;
+    
+    -- Switch on/off after every focused_digit_blink_period_const/2 time
+    BLINKING_TIME_COUNTER:
+    process(clk_i, rst_i)
+        variable blink_cntr : INTEGER := 0;
+    begin
+        if rst_i = '1' then
+            blink_cntr := 0;
+            is_blink <= '0';
+            
+        elsif rising_edge (clk_i) then
+        
+            -- increment counter
+            if blink_cntr = focused_digit_blink_period_const-1 then
+                blink_cntr := 0;                
+            else
+                blink_cntr := blink_cntr + 1;                
+            end if;
+            
+            -- toggle state
+            if (blink_cntr = 0) or (blink_cntr = focused_digit_blink_period_const/2) then
+                is_blink <= not is_blink;    
+            end if;
+        
+        end if;
+    end process;
+    
+    
+    INPUT_PORTS:
+    process(clk_i, rst_i)
+    begin
+        if rst_i = '1' then
+            in_port <= (others => '0');
+            
+        elsif rising_edge (clk_i) then
             in_port <= ( 
+                7 => working_mode,
                 3 => button_stable_i(3),
                 2 => button_stable_i(2), 
                 1 => button_stable_i(1), 
                 0 => button_stable_i(0),
                 others => '0'
             );
+            
         end if;
     end process input_ports;
+    
   
-    output_ports: process(clk_i)
+    OUTPUT_PORTS:
+    process(clk_i, rst_i)
     begin
----digit_i <= (others => '1');
-        if clk_i'event and clk_i = '1' then
+        if rst_i = '1' then
+            digit_i <= (others => '1');
+            AN0_val <= (others => '0');
+            AN1_val <= (others => '0');
+            AN2_val <= (others => '0');
+            AN3_val <= (others => '0');
+            focus_flags <= (others => '0');
+            
+        elsif rising_edge (clk_i) then
 
             -- 'write_strobe' is used to qualify all writes to general output ports.
             if write_strobe = '1' then
+            
                 -- Write to output_port_w at port address 01 hex
                 if port_id(0) = '1' then
-                    digit_i(7 downto 1) <= seven_seg(out_port(3 downto 0)); -- AN0 (najbardziej po prawej)
+                    AN0_val <= out_port(3 downto 0);
+                    
+                    if working_mode = edit_mode and is_blink = '1' and focus_flags(0) = '1' then
+                        digit_i(7 downto 1) <= (others => '1');
+                    else 
+                        digit_i(7 downto 1) <= seven_seg(AN0_val); -- AN0 (najbardziej po prawej)
+                    end if;
+    
                 end if;
         
                 -- Write to output_port_x at port address 02 hex
-                if port_id(1) = '1' then             
-                    digit_i(15 downto 9) <= seven_seg(out_port(3 downto 0)); -- AN1 (drugi od prawej)
+                if port_id(1) = '1' then  
+                    AN1_val <= out_port(3 downto 0);      
+                    
+                    if working_mode = edit_mode and is_blink = '1' and focus_flags(1) = '1' then
+                        digit_i(15 downto 9) <= (others => '1');
+                    else    
+                        digit_i(15 downto 9) <= seven_seg(AN1_val); -- AN1 (drugi od prawej)
+                    end if;
+                    
                 end if;
         
                 -- Write to output_port_y at port address 04 hex
                 if port_id(2) = '1' then
-                    digit_i(23 downto 17) <= seven_seg(out_port(3 downto 0)); -- AN1 (drugi od prawej)
+                    AN2_val <= out_port(3 downto 0);
+                    
+                    if working_mode = edit_mode and is_blink = '1' and focus_flags(2) = '1' then
+                        digit_i(23 downto 17) <= (others => '1');
+                    else 
+                        digit_i(23 downto 17) <= seven_seg(AN2_val); -- AN2 (drugi od levej)
+                    end if;
+                
                 end if;
         
                 -- Write to output_port_z at port address 08 hex
                 if port_id(3) = '1' then
-                  digit_i(31 downto 25) <= seven_seg(out_port(3 downto 0)); -- AN1 (drugi od prawej)
+                    AN3_val <= out_port(3 downto 0);
+                    
+                    if working_mode = edit_mode and is_blink = '1' and focus_flags(3) = '1' then
+                        digit_i(31 downto 25) <= (others => '1');
+                    else 
+                        digit_i(31 downto 25) <= seven_seg(AN3_val); -- AN3 (najbardziej po lewej)
+                    end if;
+               
                 end if;
                 
+                -- Write to output_port at port address 16 hex
+                if port_id(4) = '1' then
+                    focus_flags <= out_port(3 downto 0);                    
+                end if;
+                              
             end if;
         end if; 
     end process output_ports;

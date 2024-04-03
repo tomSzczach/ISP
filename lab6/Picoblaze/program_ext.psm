@@ -1,72 +1,183 @@
+
+;	!!! WARNING !!!
+;	Poniższy kod zrobił wrażenie na prowadzącym laby
+;	W szczególności zwrócił uwagę na mnóstwo stałych "CONSTANT"
+;	W związku z tym w celu uniknięcia wtopy zalecam lekką zmianę kodu
+;	np. poprzez usunięcie stałych i zastąpienie ich na stałę wpisanymi wartościami w operandach rozkazów, edycję komentarzy, itp.
+;	!!! WARNING !!!
+
+
+; INFO
+	; - means that the bit is unused
+	; X means that the bit is in use 
+
+; BUTTONS
+CONSTANT btn3, 00001000'b	; btn3 - shift focus to the next digit on the left
+CONSTANT btn2, 00000100'b	; btn2 - shift focus to the next digit on the right
+CONSTANT btn1, 00000010'b	; btn1 - increment the value of the selected digit
+CONSTANT btn0, 00000001'b	; btn0 - decrement the value of the selected digit
+
+; PORTS
+CONSTANT data_in_port, 00000000'b
+
+CONSTANT focus_flags_out_port, 00010000'b
+CONSTANT AN3_out_port, 00001000'b
+CONSTANT AN2_out_port, 00000100'b
+CONSTANT AN1_out_port, 00000010'b
+CONSTANT AN0_out_port, 00000001'b
+
+; MODES
+CONSTANT editing_mode, 10000000'b
+CONSTANT display_mode, 00000000'b
+
+; focus
+CONSTANT AN3_is_selected, 00001000'b
+CONSTANT AN2_is_selected, 00000100'b
+CONSTANT AN1_is_selected, 00000010'b
+CONSTANT AN0_is_selected, 00000001'b
+
+
 start:
-	LOAD s1, 00 ; [7..4] flagi focusu, [3..0] wartosc poj. wyswietlacza
-	LOAD s2, 00 ; stan buttonów w poprzedniej iteracji
-	LOAD s3, 01 ; numer portu, 1, 2, 4, 8
-oczekuj:
-	INPUT s0, 00 ; czytaj input
-	TEST s0, 80	; skip bo nie ma focusu
-	JUMP Z, skip
+	LOAD s0, 00	; 4-bit value of AN0 digit	[- - - - X X X X]
+	LOAD s1, 00	; 4-bit value of AN1 digit	[- - - - X X X X]
+	LOAD s2, 00	; 4-bit value of AN2 digit	[- - - - X X X X]
+	LOAD s3, 00	; 4-bit value of AN3 digit	[- - - - X X X X]
 	
+	LOAD s4, 01	; selected digit flags
+					; [- - - - X=AN3 X=AN2 X=AN1 X=AN0]
+					; 1 = selected
+					; 0 = not selected
 	
-	TEST s0, 00000001'b
-	JUMP NZ, zmniejsz_liczbe
-	AND s2, FE ; b0 już nie jest wciśnięty
+	LOAD s5, 00	; state of buttons during previous iteration
+					; [- - - - X=btn3 X=btn2 X=btn1 X=btn0]
+					; 1 = has been pressed
+					; 0 = has not been pressed
 
-	TEST s0, 00000010'b
-	JUMP NZ, zwieksz_liczbe
-	AND s2, FD ; b1 już nie jest wciśnięty
-	
-	
-	TEST s0, 00000100'b
-	JUMP NZ, zmniejsz_led
-	AND s2, FB ; b2 już nie jest wciśnięty
+	LOAD s6, 00	; input data register
+					; ____________________________________________
+					; state of buttons during this iteration
+					; [- - - - X=btn3 X=btn2 X=btn1 X=btn0]
+					; 1 = is pressed
+					; 0 = is not pressed
+					; ____________________________________________
+					; current working mode
+					; [X=mode - - - - - - -]
+					; 1 = editing mode
+					; 0 = display mode
 
-	TEST s0, 00001000'b
-	JUMP NZ, zwieksz_led
-	AND s2, F7 ; b3 już nie jest wciśnięty
-	;
-skip:
-	LOAD s4, s3
-	SL0 s4
-	SL0 s4
-	SL0 s4
-	SL0 s4
-	OR s1, s4
-	OUTPUT s1, (s3) ;wyslij dane na odpowiedni port
-	JUMP oczekuj
+
+main_loop:
+	; read data from input port
+	INPUT s6, data_in_port
 	
-zmniejsz_liczbe:
-	TEST s2, 00000001'b
-	JUMP NZ, skip ; b0 już jest wciśnięty
-	OR s2, 00000001'b ; b0 właśnie wciśnięty
-	SUB s1, 01
-	AND s1, 0F		
-	JUMP skip
+	; check mode
+	TEST s6, editing_mode
+	CALL NZ, handle_editing_mode
 	
-zwieksz_liczbe:
-	TEST s2, 00000010'b
-	JUMP NZ, skip ; b1 już jest wciśnięty
-	OR s2, 00000010'b ; b1 właśnie wciśnięty
-	ADD s1, 01
-	AND s1, 0F	
-	JUMP skip
+	; write data to output ports
+	OUTPUT s0, AN0_out_port
+	OUTPUT s1, AN1_out_port
+	OUTPUT s2, AN2_out_port
+	OUTPUT s3, AN3_out_port
+	OUTPUT s4, focus_flags_out_port
 	
-zmniejsz_led:
-	TEST s2, 00000100'b
-	JUMP NZ, skip ; b2 już jest wciśnięty
-	OR s2, 00000100'b ; b2 właśnie wciśnięty
+	JUMP main_loop
+		
+
+handle_editing_mode:
+
+	TEST s5, btn0			
+	JUMP NZ, skip_btn0 ; if btn0 has already been pressed
+		TEST s6, btn0		
+		CALL NZ, handle_dec_value ; if btn0 is pressed
+	skip_btn0:
 	
-	TEST s3, 01
-	JUMP NZ, skip
-	SR0 s3
-	JUMP skip	
+	TEST s5, btn1			
+	JUMP NZ, skip_btn1 ; if btn1 has already been pressed
+		TEST s6, btn1		
+		CALL NZ, handle_inc_value ; if btn1 is pressed
+	skip_btn1:
 	
-zwieksz_led:
-	TEST s2, 00001000'b
-	JUMP NZ, skip ; b3 już jest wciśnięty
-	OR s2, 00001000'b ; b3 właśnie wciśnięty
+	TEST s5, btn2		
+	JUMP NZ, skip_btn2 ; if btn2 has already been pressed
+		TEST s6, btn2		
+		CALL NZ, handle_dec_position ; if btn2 is pressed
+	skip_btn2:
 	
-	TEST s3, 08
-	JUMP NZ, skip
-	SL0 s3
-	JUMP skip
+	TEST s5, btn3			
+	JUMP NZ, skip_btn3 ; if btn3 has already been pressed
+		TEST s6, btn3		
+		CALL NZ, handle_inc_position ; if btn3 is pressed
+	skip_btn3:
+	
+	; update buttons history
+	LOAD s5, s6
+	
+	RETURN
+
+
+handle_dec_position:
+
+	TEST s4, AN0_is_selected
+	RETURN NZ ; if rightmost digit is selected
+	SR0 s4 ; else shift focus to the right
+	RETURN
+	
+
+handle_inc_position:
+	
+	TEST s4, AN3_is_selected
+	RETURN NZ ; if leftmost digit is selected
+	SL0 s4 ; else shift focus to the left
+	RETURN
+	
+	
+handle_dec_value:
+
+	TEST s4, AN0_is_selected
+	JUMP Z, skip_dec_an0 ; if AN0 is not selected
+		SUB s0, 01
+	skip_dec_an0:
+	
+	TEST s4, AN1_is_selected
+	JUMP Z, skip_dec_an1 ; if AN1 is not selected
+		SUB s1, 01
+	skip_dec_an1:
+
+	TEST s4, AN2_is_selected
+	JUMP Z, skip_dec_an2 ; if AN2 is not selected
+		SUB s2, 01
+	skip_dec_an2:
+	
+	TEST s4, AN3_is_selected
+	JUMP Z, skip_dec_an3 ; if AN3 is not selected
+		SUB s3, 01
+	skip_dec_an3:
+	
+	RETURN
+	
+	
+handle_inc_value:
+
+	TEST s4, AN0_is_selected
+	JUMP Z, skip_inc_an0 ; if AN0 is not selected
+		ADD s0, 01
+	skip_inc_an0:
+	
+	TEST s4, AN1_is_selected
+	JUMP Z, skip_inc_an1 ; if AN1 is not selected
+		ADD s1, 01
+	skip_inc_an1:
+
+	TEST s4, AN2_is_selected
+	JUMP Z, skip_inc_an2 ; if AN2 is not selected
+		ADD s2, 01
+	skip_inc_an2:
+	
+	TEST s4, AN3_is_selected
+	JUMP Z, skip_inc_an3 ; if AN3 is not selected
+		ADD s3, 01
+	skip_inc_an3:
+	
+	RETURN
+

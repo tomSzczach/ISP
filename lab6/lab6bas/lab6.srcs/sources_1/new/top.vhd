@@ -122,6 +122,8 @@ architecture Behavioral of top is
     signal button_sync_i : STD_LOGIC_VECTOR (button_i'range) := (others => '0');
     signal button_stable_i : STD_LOGIC_VECTOR (button_i'range) := (others => '0');
     
+    signal AN0_val : STD_LOGIC_VECTOR (3 downto 0) := (others => '0');
+    
     --
     -- Signals for connection of KCPSM6 and Program Memory.
     --
@@ -232,6 +234,7 @@ begin
                 -- Write to output_port_w at port address 01 hex
                 if port_id(0) = '1' then
                     digit_i <= (others => '1');
+                    AN0_val <= out_port(3 downto 0);
                     digit_i(7 downto 1) <= seven_seg(out_port(3 downto 0)); 
                 end if;
 
