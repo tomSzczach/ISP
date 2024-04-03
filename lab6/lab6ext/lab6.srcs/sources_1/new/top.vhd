@@ -46,12 +46,12 @@ architecture Behavioral of top is
     type int_vector is array (Natural range <>) of integer;
     
     -- CONSTANTS
-    constant btn_delay_const : integer := 10000;
-        -- opóŸnienie (0.1ms) syg. stabilnego w cyklach zegara (100MHz)
-    constant mode_change_time_const : integer := 50000000;     
-        -- czas trwania wciœniêcia BTNL (0.5s), aby zmieniæ tryb prac 
-    constant focused_digit_blink_period_const : integer := 100000000;
-        -- okres migania (1s) cyfry, która jest sfokusowana
+    constant btn_delay_const : integer := 20000;
+        -- opóŸnienie (0.2ms) syg. stabilnego liczone w cyklach zegara (100MHz)
+    constant mode_change_time_const : integer := 150000;                    -- current value is for testing purposes
+        -- czas trwania wciœniêcia BTNL (1.5ms), aby zmieniæ tryb prac          -- change before release on production       
+    constant focused_digit_blink_period_const : integer := 100000;          -- current value is for testing purposes
+        -- okres migania (1ms) cyfry, która jest sfokusowana                    -- change before release on production 
     constant edit_mode : std_logic := '1';    
     
 
