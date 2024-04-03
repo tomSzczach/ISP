@@ -48,6 +48,10 @@ architecture Behavioral of top is
     -- CONSTANTS
     constant btn_delay_const : integer := 10000;
         -- opóŸnienie (0.1ms) syg. stabilnego w cyklach zegara (100MHz)
+    constant mode_change_time_const : integer := 50000000;     
+        -- czas trwania wciœniêcia BTNL (0.5s), aby zmieniæ tryb prac 
+    constant focused_digit_blink_period_const : integer := 100000000;
+        -- okres migania (1s) cyfry, która jest sfokusowana
 
     -- FUNCTIONS
     function seven_seg(data_in: std_logic_vector(3 downto 0)) return std_logic_vector is
@@ -121,6 +125,8 @@ architecture Behavioral of top is
     
     signal button_sync_i : STD_LOGIC_VECTOR (button_i'range) := (others => '0');
     signal button_stable_i : STD_LOGIC_VECTOR (button_i'range) := (others => '0');
+    
+    signal working_mode : STD_LOGIC := '0';
     
     signal AN0_val : STD_LOGIC_VECTOR (3 downto 0) := (others => '0');
     signal AN1_val : STD_LOGIC_VECTOR (3 downto 0) := (others => '0');
@@ -220,6 +226,34 @@ begin
         end if;
     end process;
     
+    -- There are 2 working modes described by
+    -- '0' = display mode
+    -- '1' = edit mode
+    -- Mode is change on button(3) press lasting 0.5s
+    MODE_SWITCH:
+    process(clk_i, rst_i) is
+        variable press_cntr : INTEGER := 0;
+    begin
+        if rst_i = '1' then
+            press_cntr := 0;
+            working_mode <= '0';
+        
+        elsif rising_edge (clk_i) then
+            
+            if button_stable_i(3) = '1' then
+                press_cntr := press_cntr + 1;                
+            else
+                press_cntr := 0;                
+            end if;
+            
+            if press_cntr = mode_change_time_const then
+                working_mode <= not working_mode;
+                press_cntr := 0;
+            end if;
+            
+        end if;
+    end process;
+    
     
     INPUT_PORTS:
     process(clk_i, rst_i)
@@ -229,7 +263,7 @@ begin
             
         elsif rising_edge (clk_i) then
             in_port <= ( 
-                7 => '1',
+                7 => working_mode,
                 3 => button_stable_i(3),
                 2 => button_stable_i(2), 
                 1 => button_stable_i(1), 
