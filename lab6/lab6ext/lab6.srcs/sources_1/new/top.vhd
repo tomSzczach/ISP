@@ -118,8 +118,10 @@ architecture Behavioral of top is
     
     -- SIGNALS
     signal digit_i : STD_LOGIC_VECTOR (31 downto 0) := (others => '0');
+    
     signal button_sync_i : STD_LOGIC_VECTOR (button_i'range) := (others => '0');
     signal button_stable_i : STD_LOGIC_VECTOR (button_i'range) := (others => '0');
+    
     signal AN0_val : STD_LOGIC_VECTOR (3 downto 0) := (others => '0');
     signal AN1_val : STD_LOGIC_VECTOR (3 downto 0) := (others => '0');
     signal AN2_val : STD_LOGIC_VECTOR (3 downto 0) := (others => '0');
@@ -187,10 +189,17 @@ begin
         led7_seg_o => led7_seg_o
     );
     
-    button_stabilizer: process(clk_i) is 
+    
+    BUTTON_STABILIZER:
+    process(clk_i, rst_i) is 
         variable delay_cntr : int_vector (button_i'range) := (others => 0);
     begin
-        if rising_edge (clk_i) then
+        if rst_i = '1' then
+            delay_cntr := (others => 0);
+            button_sync_i <= (others => '0');
+            button_stable_i <= (others => '0');
+            
+        elsif rising_edge (clk_i) then
             button_sync_i <= button_i;
             
             for i in button_i'range loop
@@ -211,9 +220,14 @@ begin
         end if;
     end process;
     
-    input_ports: process(clk_i)
+    
+    INPUT_PORTS:
+    process(clk_i, rst_i)
     begin
-        if clk_i'event and clk_i = '1' then
+        if rst_i = '1' then
+            in_port <= (others => '0');
+            
+        elsif rising_edge (clk_i) then
             in_port <= ( 
                 7 => '1',
                 3 => button_stable_i(3),
@@ -222,16 +236,26 @@ begin
                 0 => button_stable_i(0),
                 others => '0'
             );
+            
         end if;
     end process input_ports;
+    
   
-    output_ports: process(clk_i)
+    OUTPUT_PORTS:
+    process(clk_i, rst_i)
     begin
----digit_i <= (others => '1');
-        if clk_i'event and clk_i = '1' then
+        if rst_i = '1' then
+            digit_i <= (others => '0');
+            AN0_val <= (others => '0');
+            AN1_val <= (others => '0');
+            AN2_val <= (others => '0');
+            AN3_val <= (others => '0');
+            
+        elsif rising_edge (clk_i) then
 
             -- 'write_strobe' is used to qualify all writes to general output ports.
             if write_strobe = '1' then
+            
                 -- Write to output_port_w at port address 01 hex
                 if port_id(0) = '1' then
                     AN0_val <= out_port(3 downto 0);
