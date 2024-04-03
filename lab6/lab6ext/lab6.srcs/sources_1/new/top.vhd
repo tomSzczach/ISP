@@ -46,8 +46,8 @@ architecture Behavioral of top is
     type int_vector is array (Natural range <>) of integer;
     
     -- CONSTANTS
-    constant btn_delay_const : integer := 100000;
-        -- opóŸnienie (1ms) syg. stabilnego w cyklach zegara (100MHz)
+    constant btn_delay_const : integer := 10000;
+        -- opóŸnienie (0.1ms) syg. stabilnego w cyklach zegara (100MHz)
 
     -- FUNCTIONS
     function seven_seg(data_in: std_logic_vector(3 downto 0)) return std_logic_vector is
@@ -120,6 +120,10 @@ architecture Behavioral of top is
     signal digit_i : STD_LOGIC_VECTOR (31 downto 0) := (others => '0');
     signal button_sync_i : STD_LOGIC_VECTOR (button_i'range) := (others => '0');
     signal button_stable_i : STD_LOGIC_VECTOR (button_i'range) := (others => '0');
+    signal AN0_val : STD_LOGIC_VECTOR (3 downto 0) := (others => '0');
+    signal AN1_val : STD_LOGIC_VECTOR (3 downto 0) := (others => '0');
+    signal AN2_val : STD_LOGIC_VECTOR (3 downto 0) := (others => '0');
+    signal AN3_val : STD_LOGIC_VECTOR (3 downto 0) := (others => '0');
     
     --
     -- Signals for connection of KCPSM6 and Program Memory.
@@ -211,6 +215,7 @@ begin
     begin
         if clk_i'event and clk_i = '1' then
             in_port <= ( 
+                7 => '1',
                 3 => button_stable_i(3),
                 2 => button_stable_i(2), 
                 1 => button_stable_i(1), 
@@ -229,21 +234,25 @@ begin
             if write_strobe = '1' then
                 -- Write to output_port_w at port address 01 hex
                 if port_id(0) = '1' then
+                    AN0_val <= out_port(3 downto 0);
                     digit_i(7 downto 1) <= seven_seg(out_port(3 downto 0)); -- AN0 (najbardziej po prawej)
                 end if;
         
                 -- Write to output_port_x at port address 02 hex
-                if port_id(1) = '1' then             
+                if port_id(1) = '1' then  
+                    AN1_val <= out_port(3 downto 0);           
                     digit_i(15 downto 9) <= seven_seg(out_port(3 downto 0)); -- AN1 (drugi od prawej)
                 end if;
         
                 -- Write to output_port_y at port address 04 hex
                 if port_id(2) = '1' then
+                    AN2_val <= out_port(3 downto 0);
                     digit_i(23 downto 17) <= seven_seg(out_port(3 downto 0)); -- AN1 (drugi od prawej)
                 end if;
         
                 -- Write to output_port_z at port address 08 hex
                 if port_id(3) = '1' then
+                  AN3_val <= out_port(3 downto 0);
                   digit_i(31 downto 25) <= seven_seg(out_port(3 downto 0)); -- AN1 (drugi od prawej)
                 end if;
                 

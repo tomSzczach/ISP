@@ -70,12 +70,59 @@ clk_i <= not clk_i after 5 ns;
         rst_i <= '0';
         wait for 100 ns;
         
-        loop
-            button_i <= "0010";
-            --button_i <= '1';
-            wait for 1 ms;
-            button_i <= "0000";
-            wait for 4 ms;
-        end loop;      
+        -- ++
+        button_i <= "0010";
+        wait for 1 ms;
+        button_i <= "0000";
+        wait for 2 ms;
+        
+        -- ++
+        button_i <= "0010";
+        wait for 1 ms;
+        button_i <= "0000";
+        wait for 2 ms;
+        
+        -- >>
+        button_i <= "0100";
+        wait for 1 ms;
+        button_i <= "0000";
+        wait for 2 ms;
+        
+        -- <<
+        button_i <= "1000";
+        wait for 1 ms;
+        button_i <= "0000";
+        wait for 2 ms;
+        
+        -- ++
+        button_i <= "0010";
+        wait for 1 ms;
+        button_i <= "0000";
+        wait for 2 ms;
+        
+        -- ++
+        button_i <= "0010";
+        wait for 1 ms;
+        button_i <= "0000";
+        wait for 2 ms;
+        
+        -- <<
+        button_i <= "1000";
+        wait for 1 ms;
+        button_i <= "0000";
+        wait for 2 ms;
+        
+        -- --
+        button_i <= "0001";
+        wait for 1 ms;
+        button_i <= "0000";
+        wait for 2 ms;
+        
+        -- --
+        button_i <= "0001";
+        wait for 1 ms;
+        button_i <= "0000";
+        wait for 2 ms;
+           
      end process;
 end Behavioral;
