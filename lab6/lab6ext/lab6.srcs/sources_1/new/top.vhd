@@ -52,6 +52,8 @@ architecture Behavioral of top is
         -- czas trwania wciœniêcia BTNL (0.5s), aby zmieniæ tryb prac 
     constant focused_digit_blink_period_const : integer := 100000000;
         -- okres migania (1s) cyfry, która jest sfokusowana
+    constant edit_mode : std_logic := '1';    
+    
 
     -- FUNCTIONS
     function seven_seg(data_in: std_logic_vector(3 downto 0)) return std_logic_vector is
@@ -121,7 +123,7 @@ architecture Behavioral of top is
     end component display;
     
     -- SIGNALS
-    signal digit_i : STD_LOGIC_VECTOR (31 downto 0) := (others => '0');
+    signal digit_i : STD_LOGIC_VECTOR (31 downto 0) := (others => '1');
     
     signal button_sync_i : STD_LOGIC_VECTOR (button_i'range) := (others => '0');
     signal button_stable_i : STD_LOGIC_VECTOR (button_i'range) := (others => '0');
@@ -308,7 +310,7 @@ begin
     process(clk_i, rst_i)
     begin
         if rst_i = '1' then
-            digit_i <= (others => '0');
+            digit_i <= (others => '1');
             AN0_val <= (others => '0');
             AN1_val <= (others => '0');
             AN2_val <= (others => '0');
@@ -324,10 +326,10 @@ begin
                 if port_id(0) = '1' then
                     AN0_val <= out_port(3 downto 0);
                     
-                    if is_blink = '1' and focus_flags(0) = '1' then
+                    if working_mode = edit_mode and is_blink = '1' and focus_flags(0) = '1' then
                         digit_i(7 downto 1) <= (others => '1');
                     else 
-                        digit_i(7 downto 1) <= seven_seg(out_port(3 downto 0)); -- AN0 (najbardziej po prawej)
+                        digit_i(7 downto 1) <= seven_seg(AN0_val); -- AN0 (najbardziej po prawej)
                     end if;
     
                 end if;
@@ -336,10 +338,10 @@ begin
                 if port_id(1) = '1' then  
                     AN1_val <= out_port(3 downto 0);      
                     
-                    if is_blink = '1' and focus_flags(1) = '1' then
+                    if working_mode = edit_mode and is_blink = '1' and focus_flags(1) = '1' then
                         digit_i(15 downto 9) <= (others => '1');
                     else    
-                        digit_i(15 downto 9) <= seven_seg(out_port(3 downto 0)); -- AN1 (drugi od prawej)
+                        digit_i(15 downto 9) <= seven_seg(AN1_val); -- AN1 (drugi od prawej)
                     end if;
                     
                 end if;
@@ -348,10 +350,10 @@ begin
                 if port_id(2) = '1' then
                     AN2_val <= out_port(3 downto 0);
                     
-                    if is_blink = '1' and focus_flags(2) = '1' then
+                    if working_mode = edit_mode and is_blink = '1' and focus_flags(2) = '1' then
                         digit_i(23 downto 17) <= (others => '1');
                     else 
-                        digit_i(23 downto 17) <= seven_seg(out_port(3 downto 0)); -- AN2 (drugi od levej)
+                        digit_i(23 downto 17) <= seven_seg(AN2_val); -- AN2 (drugi od levej)
                     end if;
                 
                 end if;
@@ -360,10 +362,10 @@ begin
                 if port_id(3) = '1' then
                     AN3_val <= out_port(3 downto 0);
                     
-                    if is_blink = '1' and focus_flags(3) = '1' then
+                    if working_mode = edit_mode and is_blink = '1' and focus_flags(3) = '1' then
                         digit_i(31 downto 25) <= (others => '1');
                     else 
-                        digit_i(31 downto 25) <= seven_seg(out_port(3 downto 0)); -- AN3 (najbardziej po lewej)
+                        digit_i(31 downto 25) <= seven_seg(AN3_val); -- AN3 (najbardziej po lewej)
                     end if;
                
                 end if;
