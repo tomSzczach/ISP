@@ -1,3 +1,12 @@
+
+;	!!! WARNING !!!
+;	Poniższy kod zrobił wrażenie na prowadzącym laby
+;	W szczególności zwrócił uwagę na mnóstwo stałych "CONSTANT"
+;	W związku z tym w celu uniknięcia wtopy zalecam lekką zmianę kodu
+;	np. poprzez usunięcie stałych i zastąpienie ich na stałę wpisanymi wartościami w operandach rozkazów, edycję komentarzy, itp.
+;	!!! WARNING !!!
+
+
 ; INFO
 	; - means that the bit is unused
 	; X means that the bit is in use 
