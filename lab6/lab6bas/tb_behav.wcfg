@@ -12,14 +12,14 @@
    </db_ref_list>
    <zoom_setting>
       <ZoomStartTime time="0.000000000 ms"></ZoomStartTime>
-      <ZoomEndTime time="0.604562058 ms"></ZoomEndTime>
+      <ZoomEndTime time="10.001000001 ms"></ZoomEndTime>
       <Cursor1Time time="10.001000000 ms"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="263"></NameColumnWidth>
+      <NameColumnWidth column_width="259"></NameColumnWidth>
       <ValueColumnWidth column_width="58"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="17" />
+   <WVObjectSize size="18" />
    <wvobject fp_name="/tb/clk_i" type="logic">
       <obj_property name="ElementShortName">clk_i</obj_property>
       <obj_property name="ObjectShortName">clk_i</obj_property>
@@ -87,5 +87,9 @@
    <wvobject fp_name="/tb/uut/digit_i" type="array">
       <obj_property name="ElementShortName">digit_i[31:0]</obj_property>
       <obj_property name="ObjectShortName">digit_i[31:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/uut/AN0_val" type="array">
+      <obj_property name="ElementShortName">AN0_val[3:0]</obj_property>
+      <obj_property name="ObjectShortName">AN0_val[3:0]</obj_property>
    </wvobject>
 </wave_config>
