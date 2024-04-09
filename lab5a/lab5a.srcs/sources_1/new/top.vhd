@@ -48,6 +48,10 @@ architecture Behavioral of top is
     signal recv_data : STD_LOGIC_VECTOR (7 downto 0) := (others => '0');
     signal write_to_buffer_enable : STD_LOGIC := '0';
     
+    signal send_data : STD_LOGIC_VECTOR (7 downto 0) := (others => '0');
+    signal send_data_enable : STD_LOGIC := '1';
+    signal send_data_request : STD_LOGIC := '0';
+    
     signal read_data : STD_LOGIC_VECTOR (7 downto 0) := (others => '0');
     signal read_from_buffer_enable : STD_LOGIC := '1';
     signal is_buffer_reading : STD_LOGIC := '0';
@@ -62,6 +66,17 @@ architecture Behavioral of top is
         RXD_i : IN STD_LOGIC;
         recv_ASCII_o : OUT STD_LOGIC_VECTOR (7 downto 0);
         recv_ASCII_enable_o : OUT STD_LOGIC
+      );
+    END COMPONENT;
+    
+    COMPONENT rs232_port_output_service
+      PORT ( 
+        clk_i : in STD_LOGIC;
+        rst_i : in STD_LOGIC;
+        TXD_o : out STD_LOGIC;
+        send_ASCII_i : in STD_LOGIC_VECTOR (7 downto 0);
+        send_ASCII_request_i : in STD_LOGIC;
+        send_ASCII_enable_o : out STD_LOGIC
       );
     END COMPONENT;
     
@@ -99,6 +114,16 @@ begin
         RXD_i => RXD_i,
         recv_ASCII_o => recv_data,
         recv_ASCII_enable_o => write_to_buffer_enable
+      );
+      
+    output_service : rs232_port_output_service
+      PORT MAP (
+        clk_i => clk_i,
+        rst_i => rst_off,
+        TXD_o => TXD_o,
+        send_ASCII_i => send_data,
+        send_ASCII_request_i => send_data_request,
+        send_ASCII_enable_o => send_data_enable
       );
       
     display_service : display
