@@ -39,13 +39,13 @@ entity display is
             );
             
     Port ( 
-            clk_i : in STD_LOGIC;                                 -- 100 MHz
-            rst_i : in STD_LOGIC;                                 -- async reset on '1' => switch on all segments
-            hex_value_i : in STD_LOGIC_VECTOR (15 downto 0);      -- (15-12) -> AN3(7-1), (11-8) -> AN2(7-1), (7-4) -> AN1(7-1),(3-0) -> AN0(7-1)
-            dots_i : in STD_LOGIC_VECTOR (3 downto 0);            -- (3) -> AN3(0), (2) -> AN2(0), (1) -> AN1(0), (0) -> AN0(0)
-            enabling_flags_i : in STD_LOGIC_VECTOR (3 downto 0);  -- if(3) -> AN3 is ON, if(2) -> AN2 is ON, if(1) -> AN1 is ON, if(0) -> AN0 is ON
-            led7_an_o : out STD_LOGIC_VECTOR (3 downto 0);        -- AN3(3), AN2(2), AN1(1), AN0(0)
-            led7_seg_o : out STD_LOGIC_VECTOR (7 downto 0)        -- u(7), ur(6), dr(5), d(4), dl(3), ur(2), m(1), dot(0)
+            clk_i : in STD_LOGIC;                                        -- 100 MHz
+            rst_i : in STD_LOGIC;                                        -- async reset on '1' => switch on all segments
+            hex_value_i : in STD_LOGIC_VECTOR (15 downto 0);             -- (15-12) -> AN3(7-1), (11-8) -> AN2(7-1), (7-4) -> AN1(7-1),(3-0) -> AN0(7-1)
+            dots_i : in STD_LOGIC_VECTOR (3 downto 0);                   -- (3) -> AN3(0), (2) -> AN2(0), (1) -> AN1(0), (0) -> AN0(0)
+            enabling_flags_i : in STD_LOGIC_VECTOR (3 downto 0);         -- if(3) -> AN3 is ON, if(2) -> AN2 is ON, if(1) -> AN1 is ON, if(0) -> AN0 is ON
+            led7_an_o : out STD_LOGIC_VECTOR (3 downto 0) := "0000";     -- AN3(3), AN2(2), AN1(1), AN0(0)
+            led7_seg_o : out STD_LOGIC_VECTOR (7 downto 0) := "00000000" -- u(7), ur(6), dr(5), d(4), dl(3), ur(2), m(1), dot(0)
          );
          
 end display;
@@ -86,7 +86,7 @@ architecture Behavioral of display is
                when others => tmp := "0000001";   -- -
             end case;
         else
-            tmp := "00000000";
+            tmp := "0000000";
         end if;
         return (tmp);
     end function seven_seg;

@@ -66,7 +66,7 @@ architecture Behavioral of rs232_port_input_service is
     
     signal SDU_reg : STD_LOGIC_VECTOR(SDU_length-1 downto 0) := (others => '0');
     
-    signal transmission_state : TRANSMISSION_STATE_ENUM := STOP;
+    signal transmission_state : TRANSMISSION_STATE_ENUM := NO_DATA;
     
     signal bit_duration_cnt : INTEGER range 1 to bit_duration;
     signal bit_idx_cnt : INTEGER range 0 to SDU_length-1;
