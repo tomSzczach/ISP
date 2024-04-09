@@ -48,13 +48,15 @@ architecture Behavioral of top is
     signal recv_data : STD_LOGIC_VECTOR (7 downto 0) := (others => '0');
     signal write_to_buffer_enable : STD_LOGIC := '0';
     
+    signal read_data : STD_LOGIC_VECTOR (7 downto 0) := (others => '0');
+    signal read_from_buffer_enable : STD_LOGIC := '0';
+    
+    signal is_buffer_empty : STD_LOGIC := '1';
+    signal is_buffer_full : STD_LOGIC := '0';
+    
     signal send_data : STD_LOGIC_VECTOR (7 downto 0) := (others => '0');
     signal send_data_enable : STD_LOGIC := '1';
     signal send_data_request : STD_LOGIC := '0';
-    
-    signal read_data : STD_LOGIC_VECTOR (7 downto 0) := (others => '0');
-    signal read_from_buffer_enable : STD_LOGIC := '1';
-    signal is_buffer_reading : STD_LOGIC := '0';
     
     signal display_hex_value : STD_LOGIC_VECTOR (15 downto 0) := (others => '0');
     
@@ -92,16 +94,15 @@ architecture Behavioral of top is
       );
     END COMPONENT;
     
-    COMPONENT fifo_mem_service
-      PORT ( 
-        clk_i : in STD_LOGIC;
-        rst_i : in STD_LOGIC;
-        writing_to_buffer : in STD_LOGIC;
-        data_to_write : in STD_LOGIC_VECTOR (7 downto 0);
-        reading_from_buffer_enable : in STD_LOGIC;
-        buffer_is_reading : out STD_LOGIC;
-        data_to_read : out STD_LOGIC_VECTOR (7 downto 0);
-        is_overflow : out STD_LOGIC := '0'
+    COMPONENT fifo_mem
+      PORT (
+        clk : IN STD_LOGIC;
+        din : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
+        wr_en : IN STD_LOGIC;
+        rd_en : IN STD_LOGIC;
+        dout : OUT STD_LOGIC_VECTOR(7 DOWNTO 0);
+        full : OUT STD_LOGIC;
+        empty : OUT STD_LOGIC 
       );
     END COMPONENT;
 
@@ -137,17 +138,35 @@ begin
         led7_seg_o => led7_seg_o 
       );
       
-    data_buffer_service : fifo_mem_service
+    data_buffer : fifo_mem
       PORT MAP (
-        clk_i => clk_i,
-        rst_i => rst_off,
-        writing_to_buffer => write_to_buffer_enable,
-        data_to_write => recv_data,
-        reading_from_buffer_enable => read_from_buffer_enable,
-        buffer_is_reading => is_buffer_reading,
-        data_to_read => read_data,
-        is_overflow => ld0
+        clk => clk_i,
+        din => recv_data,
+        wr_en => write_to_buffer_enable,
+        rd_en => read_from_buffer_enable,
+        dout => read_data,
+        full => is_buffer_full,
+        empty => is_buffer_empty 
       );
+
+
+    -- PROCESSES
+    
+    OVERFLOW_GUARD:
+    process (clk_i)
+    begin
+        if rising_edge(clk_i) then
+        
+            if is_buffer_full = '1' and write_to_buffer_enable = '1' then
+                ld0 <= '1';
+            end if;
+            
+            if is_buffer_full = '0' then
+                ld0 <= '0';   
+            end if;
+            
+        end if;
+    end process;
 
 
 end Behavioral;
