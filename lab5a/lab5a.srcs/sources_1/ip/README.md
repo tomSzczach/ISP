@@ -1,0 +1,3 @@
+# How to add necessary IP Core blocks
+
+Lorem ipsum...
