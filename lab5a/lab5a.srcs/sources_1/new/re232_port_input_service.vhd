@@ -24,7 +24,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx leaf cells in this code.
@@ -70,6 +70,8 @@ architecture Behavioral of rs232_port_input_service is
     
     signal bit_duration_cnt : INTEGER range 1 to bit_duration;
     signal bit_idx_cnt : INTEGER range 0 to SDU_length-1;
+    
+    signal testinput : CHARACTER;
         
 begin
 
@@ -179,6 +181,8 @@ begin
             if (bit_duration_cnt = bit_duration/2) and (transmission_state = STOP) then
                 recv_ASCII_enable_o <= '1';
                 recv_ASCII_o <= SDU_reg(8 downto 1);
+                
+                testinput <= CHARACTER'VAL(TO_INTEGER(UNSIGNED(SDU_reg(8 downto 1))));
                 
             else
                 recv_ASCII_enable_o <= '0';

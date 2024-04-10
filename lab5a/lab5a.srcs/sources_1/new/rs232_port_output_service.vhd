@@ -24,7 +24,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx leaf cells in this code.
@@ -70,18 +70,9 @@ architecture Behavioral of rs232_port_output_service is
     signal bit_duration_cnt : INTEGER range 1 to bit_duration;
     signal bit_idx_cnt : INTEGER range 0 to SDU_length-1;
     
-    signal SDU_reg : STD_LOGIC_VECTOR(SDU_length-1 downto 0) := (
-                                                                    '0',                -- start bit
-                                                                    send_ASCII_i(0),    
-                                                                    send_ASCII_i(1),
-                                                                    send_ASCII_i(2),
-                                                                    send_ASCII_i(3),
-                                                                    send_ASCII_i(4),
-                                                                    send_ASCII_i(5),
-                                                                    send_ASCII_i(6),
-                                                                    send_ASCII_i(7),
-                                                                    '1'                 -- stop bit
-                                                                 );
+    signal testoutput : CHARACTER;
+    
+    signal SDU_reg : STD_LOGIC_VECTOR(0 to SDU_length-1) := (others => '0');
 
 begin
 
@@ -109,6 +100,7 @@ begin
             
             if (send_ASCII_request_i = '1') and (transmission_state = NO_DATA) then 
                 transmission_state <= START;
+                testoutput <= CHARACTER'VAL(TO_INTEGER(UNSIGNED(send_ASCII_i)));
                 
             end if;
         end if;
@@ -122,7 +114,7 @@ begin
             
         elsif rising_edge(clk_i) then
                 
-            if (transmission_state = NO_DATA) then
+            if (send_ASCII_request_i = '0') and (transmission_state = NO_DATA) then
                 send_ASCII_enable_o <= '1';
                 
             else 
@@ -170,6 +162,32 @@ begin
                     bit_idx_cnt <= 0;
                     
                 end if;
+            end if;
+        end if;
+    end process;
+    
+    SDU_REG_SETTER:
+    process(clk_i, rst_i)
+    begin
+        if rst_i = '1' then
+            SDU_reg <= (others => '0');
+        
+        elsif rising_edge(clk_i) then
+        
+            if (send_ASCII_request_i = '1') then
+                SDU_reg <= (
+                            '0',                -- start bit
+                            send_ASCII_i(0),    
+                            send_ASCII_i(1),
+                            send_ASCII_i(2),
+                            send_ASCII_i(3),
+                            send_ASCII_i(4),
+                            send_ASCII_i(5),
+                            send_ASCII_i(6),
+                            send_ASCII_i(7),
+                            '1'                 -- stop bit
+                       );
+                       
             end if;
         end if;
     end process;
