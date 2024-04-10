@@ -22,3 +22,6 @@
 
 # pdf files (documents, manuals, etc.)
 *.pdf
+
+# ip core
+**/ip/*/*
