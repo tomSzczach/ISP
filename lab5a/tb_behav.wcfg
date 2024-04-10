@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="tb_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="glbl" />
+            <top_module name="tb" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="0.000000000 ms"></ZoomStartTime>
+      <ZoomEndTime time="19.780000001 ms"></ZoomEndTime>
+      <Cursor1Time time="0.001000000 ms"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="243"></NameColumnWidth>
+      <ValueColumnWidth column_width="58"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="25" />
+   <wvobject fp_name="/tb/clk_i" type="logic">
+      <obj_property name="ElementShortName">clk_i</obj_property>
+      <obj_property name="ObjectShortName">clk_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/RXD_i" type="logic">
+      <obj_property name="ElementShortName">RXD_i</obj_property>
+      <obj_property name="ObjectShortName">RXD_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/TXD_o" type="logic">
+      <obj_property name="ElementShortName">TXD_o</obj_property>
+      <obj_property name="ObjectShortName">TXD_o</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/ld0" type="logic">
+      <obj_property name="ElementShortName">ld0</obj_property>
+      <obj_property name="ObjectShortName">ld0</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/input_service/recv_ASCII_o" type="array">
+      <obj_property name="ElementShortName">recv_ASCII_o[7:0]</obj_property>
+      <obj_property name="ObjectShortName">recv_ASCII_o[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/input_service/transmission_state" type="other">
+      <obj_property name="ElementShortName">transmission_state</obj_property>
+      <obj_property name="ObjectShortName">transmission_state</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/input_service/testinput" type="other">
+      <obj_property name="ElementShortName">testinput</obj_property>
+      <obj_property name="ObjectShortName">testinput</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/data_buffer/empty" type="logic">
+      <obj_property name="ElementShortName">empty</obj_property>
+      <obj_property name="ObjectShortName">empty</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/print_data_service/read_from_buffer_enable_o" type="logic">
+      <obj_property name="ElementShortName">read_from_buffer_enable_o</obj_property>
+      <obj_property name="ObjectShortName">read_from_buffer_enable_o</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/print_data_service/data_from_buffer_i" type="array">
+      <obj_property name="ElementShortName">data_from_buffer_i[7:0]</obj_property>
+      <obj_property name="ObjectShortName">data_from_buffer_i[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/print_data_service/is_buffer_empty_i" type="logic">
+      <obj_property name="ElementShortName">is_buffer_empty_i</obj_property>
+      <obj_property name="ObjectShortName">is_buffer_empty_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/print_data_service/state" type="other">
+      <obj_property name="ElementShortName">state</obj_property>
+      <obj_property name="ObjectShortName">state</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/print_data_service/print_frame" type="array">
+      <obj_property name="ElementShortName">print_frame[0:17][7:0]</obj_property>
+      <obj_property name="ObjectShortName">print_frame[0:17][7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/print_data_service/print_frame_size" type="other">
+      <obj_property name="ElementShortName">print_frame_size</obj_property>
+      <obj_property name="ObjectShortName">print_frame_size</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/output_service/transmission_state" type="other">
+      <obj_property name="ElementShortName">transmission_state</obj_property>
+      <obj_property name="ObjectShortName">transmission_state</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/output_service/testoutput" type="other">
+      <obj_property name="ElementShortName">testoutput</obj_property>
+      <obj_property name="ObjectShortName">testoutput</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/output_service/send_ASCII_i" type="array">
+      <obj_property name="ElementShortName">send_ASCII_i[7:0]</obj_property>
+      <obj_property name="ObjectShortName">send_ASCII_i[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/print_data_service/address" type="array">
+      <obj_property name="ElementShortName">address[11:0]</obj_property>
+      <obj_property name="ObjectShortName">address[11:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/print_data_service/pseudographic_font_row" type="array">
+      <obj_property name="ElementShortName">pseudographic_font_row[7:0]</obj_property>
+      <obj_property name="ObjectShortName">pseudographic_font_row[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/print_data_service/send_enable_i" type="logic">
+      <obj_property name="ElementShortName">send_enable_i</obj_property>
+      <obj_property name="ObjectShortName">send_enable_i</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/print_data_service/send_request_o" type="logic">
+      <obj_property name="ElementShortName">send_request_o</obj_property>
+      <obj_property name="ObjectShortName">send_request_o</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/print_data_service/data_to_send_o" type="array">
+      <obj_property name="ElementShortName">data_to_send_o[7:0]</obj_property>
+      <obj_property name="ObjectShortName">data_to_send_o[7:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/print_data_service/item_iter" type="other">
+      <obj_property name="ElementShortName">item_iter</obj_property>
+      <obj_property name="ObjectShortName">item_iter</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/print_data_service/row_iter" type="other">
+      <obj_property name="ElementShortName">row_iter</obj_property>
+      <obj_property name="ObjectShortName">row_iter</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/print_data_service/col_iter" type="other">
+      <obj_property name="ElementShortName">col_iter</obj_property>
+      <obj_property name="ObjectShortName">col_iter</obj_property>
+   </wvobject>
+</wave_config>

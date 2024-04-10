@@ -105,6 +105,18 @@ architecture Behavioral of top is
         empty : OUT STD_LOGIC 
       );
     END COMPONENT;
+    
+    COMPONENT ascii_to_pseudographic
+      PORT (
+        clk_i : in STD_LOGIC;
+        data_from_buffer_i : in STD_LOGIC_VECTOR (7 downto 0);
+        is_buffer_empty_i : in STD_LOGIC;
+        send_enable_i : in STD_LOGIC;
+        send_request_o : out STD_LOGIC;
+        data_to_send_o : out STD_LOGIC_VECTOR (7 downto 0);
+        read_from_buffer_enable_o : out STD_LOGIC        
+      );        
+    END COMPONENT;
 
 begin
 
@@ -148,7 +160,21 @@ begin
         full => is_buffer_full,
         empty => is_buffer_empty 
       );
+      
+     print_data_service : ascii_to_pseudographic
+      PORT MAP (
+        clk_i => clk_i,
+        data_from_buffer_i => read_data,
+        is_buffer_empty_i => is_buffer_empty,
+        send_enable_i => send_data_enable,
+        send_request_o => send_data_request,
+        data_to_send_o => send_data,
+        read_from_buffer_enable_o => read_from_buffer_enable        
+      );
+      
+    -- SIGNALS
 
+    display_hex_value (7 downto 0) <= recv_data;
 
     -- PROCESSES
     
