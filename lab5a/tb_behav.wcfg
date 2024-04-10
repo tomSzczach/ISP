@@ -12,14 +12,14 @@
    </db_ref_list>
    <zoom_setting>
       <ZoomStartTime time="0.000000000 ms"></ZoomStartTime>
-      <ZoomEndTime time="19.780000001 ms"></ZoomEndTime>
-      <Cursor1Time time="0.001000000 ms"></Cursor1Time>
+      <ZoomEndTime time="27.290451130 ms"></ZoomEndTime>
+      <Cursor1Time time="40.001000000 ms"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="243"></NameColumnWidth>
+      <NameColumnWidth column_width="239"></NameColumnWidth>
       <ValueColumnWidth column_width="58"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="25" />
+   <WVObjectSize size="27" />
    <wvobject fp_name="/tb/clk_i" type="logic">
       <obj_property name="ElementShortName">clk_i</obj_property>
       <obj_property name="ObjectShortName">clk_i</obj_property>
@@ -119,5 +119,13 @@
    <wvobject fp_name="/tb/dut/print_data_service/col_iter" type="other">
       <obj_property name="ElementShortName">col_iter</obj_property>
       <obj_property name="ObjectShortName">col_iter</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/print_data_service/is_empty_row_enter" type="logic">
+      <obj_property name="ElementShortName">is_empty_row_enter</obj_property>
+      <obj_property name="ObjectShortName">is_empty_row_enter</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/dut/print_data_service/empty_row_cnt" type="other">
+      <obj_property name="ElementShortName">empty_row_cnt</obj_property>
+      <obj_property name="ObjectShortName">empty_row_cnt</obj_property>
    </wvobject>
 </wave_config>

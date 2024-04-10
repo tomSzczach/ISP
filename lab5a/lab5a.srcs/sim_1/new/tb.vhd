@@ -80,11 +80,11 @@ begin
     begin
         wait for 100ns;
         
-        -- F
-        for i in 0 to SDU_length-1 loop
-            RXD_i <= RXD_data_F(i);
-            wait for bit_time_duration;
-        end loop;
+--        -- F
+--        for i in 0 to SDU_length-1 loop
+--            RXD_i <= RXD_data_F(i);
+--            wait for bit_time_duration;
+--        end loop;
                 
 --        -- O
 --        for i in 0 to SDU_length-1 loop

@@ -109,8 +109,13 @@ architecture Behavioral of ascii_to_pseudographic is
     signal state : T_STATE := IDLE;
     
     signal item_iter : INTEGER range 0 to C_print_frame_maxsize-1;
-        signal row_iter : INTEGER range 0 to C_font_rows_number-1;
-        signal col_iter : INTEGER range 0 to C_font_cols_number-1;
+    signal row_iter : INTEGER range 0 to C_font_rows_number-1;
+    signal col_iter : INTEGER range 0 to C_font_cols_number-1;
+    
+    -- < temporal workaround >
+    signal is_empty_row_enter : STD_LOGIC := '0';
+    signal empty_row_cnt : INTEGER := 0;
+    -- </ temporal workaround >
 
     
     -- COMPONENTS
@@ -167,7 +172,18 @@ begin
                 when READING =>
                     if (data_from_buffer_i = C_print_trigger_on_value) then     -- read data has value of 13 (enter)
                         read_from_buffer_enable_o <= '0';
-                        state <= PREPARING_ITERS;
+                        
+                        -- < temporal workaround >
+                        if (print_frame_size = 0) then
+                            is_empty_row_enter <= '1';
+                            empty_row_cnt <= 0;
+                            is_send_request := '0';
+                            send_request_o <= '0';
+                            state <= SENDING_CR;
+                        else
+                        -- </ temporal workaround >
+                            state <= PREPARING_ITERS;
+                        end if;
                         
                     else
                         print_frame(print_frame_size) <= data_from_buffer_i;
@@ -245,8 +261,24 @@ begin
                     elsif (is_send_request = '1') then
                         is_send_request := '0';
                         send_request_o <= '0';
-                        state <= UPDATING_ITERS;
-
+                        
+                        -- < temporal workaround >
+                        if (is_empty_row_enter = '1') then
+                            if (empty_row_cnt = C_font_rows_number-1) then
+                                is_empty_row_enter <= '0';
+                                empty_row_cnt <= 0;
+                                state <= IDLE;
+                                
+                            else
+                                empty_row_cnt <= empty_row_cnt + 1;
+                                state <= SENDING_CR;
+                                
+                            end if;
+                        else
+                        -- </ temporal workaround >
+                            state <= UPDATING_ITERS;
+                        
+                        end if;
                     end if;
                     
                     
