@@ -2,10 +2,10 @@
 -- Copyright 2022-2023 Advanced Micro Devices, Inc. All Rights Reserved.
 -- --------------------------------------------------------------------------------
 -- Tool Version: Vivado v.2023.2 (win64) Build 4029153 Fri Oct 13 20:14:34 MDT 2023
--- Date        : Sat Mar 23 02:29:40 2024
+-- Date        : Sat Mar 23 02:29:39 2024
 -- Host        : DESKTOP-ORJH6EE running 64-bit major release  (build 9200)
--- Command     : write_vhdl -force -mode synth_stub
---               c:/Users/Tomasz/DATA/CODING/ISP/lab5a/lab5a.gen/sources_1/ip/fifo_mem/fifo_mem_stub.vhdl
+-- Command     : write_vhdl -force -mode synth_stub -rename_top fifo_mem -prefix
+--               fifo_mem_ fifo_mem_stub.vhdl
 -- Design      : fifo_mem
 -- Purpose     : Stub declaration of top-level module interface
 -- Device      : xc7a100tcsg324-1
