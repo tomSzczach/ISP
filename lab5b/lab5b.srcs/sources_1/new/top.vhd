@@ -55,15 +55,21 @@ architecture Behavioral of top is
     signal r : STD_LOGIC_VECTOR (3 downto 0) := "0000";
     signal g : STD_LOGIC_VECTOR (3 downto 0) := "0000";
     signal b : STD_LOGIC_VECTOR (3 downto 0) := "0000";
-    
-    signal toggle : STD_LOGIC := '0';
-    
+        
     signal read_address : STD_LOGIC_VECTOR (17 downto 0) := (others => '0');
     signal read_data : STD_LOGIC_VECTOR (0 downto 0) := "0";
     
     signal write_enable : STD_LOGIC_VECTOR (0 downto 0) := "0";
     signal write_address : STD_LOGIC_VECTOR (17 downto 0) := (others => '0');
     signal write_data : STD_LOGIC_VECTOR (0 downto 0) := "0";
+    
+    signal x_freq : STD_LOGIC_VECTOR (7 downto 0) := "0000000";
+    signal y_freq : STD_LOGIC_VECTOR (7 downto 0) := "0000000";
+    signal x_offset : STD_LOGIC_VECTOR (7 downto 0) := "0000000";
+    signal y_offset : STD_LOGIC_VECTOR (7 downto 0) := "0000000";
+    
+    signal screen_rst : STD_LOGIC := '0';
+    signal singen_rst : STD_LOGIC := '0';
     
     -- COMPONENTS --
     COMPONENT VGA_controller
@@ -106,6 +112,20 @@ architecture Behavioral of top is
                 b_o : out STD_LOGIC_VECTOR (3 downto 0)
              );
     END COMPONENT;
+    
+    COMPONENT input_handler
+        Port ( 
+                clk_i : in STD_LOGIC;
+                sw_i : in STD_LOGIC_VECTOR (7 downto 0);
+                btn_i : in STD_LOGIC_VECTOR (3 downto 0);
+                screen_rst_o : out STD_LOGIC;
+                singen_rst_o : out STD_LOGIC;
+                x_freq_o : out STD_LOGIC_VECTOR (7 downto 0);
+                y_freq_o : out STD_LOGIC_VECTOR (7 downto 0);
+                x_offset_o : out STD_LOGIC_VECTOR (7 downto 0);
+                y_offset_o : out STD_LOGIC_VECTOR (7 downto 0)
+             );
+    END COMPONENT;
 
 begin
 
@@ -146,6 +166,22 @@ begin
             g_o => g,
             b_o => b
         );
+        
+    input: input_handler
+        PORT MAP (
+            clk_i => clk_i,
+            sw_i => sw_i,
+            btn_i => btn_i,
+            screen_rst_o => screen_rst,
+            singen_rst_o => singen_rst,
+            x_freq_o => x_freq,
+            y_freq_o => y_freq,
+            x_offset_o => x_offset,
+            y_offset_o => y_offset
+        );
+        
+    
+    
     
     
     filler:
