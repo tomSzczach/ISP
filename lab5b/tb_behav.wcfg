@@ -5,31 +5,52 @@
    <db_ref_list>
       <db_ref path="tb_behav.wdb" id="1">
          <top_modules>
+            <top_module name="glbl" />
             <top_module name="tb" />
          </top_modules>
       </db_ref>
    </db_ref_list>
    <zoom_setting>
-      <ZoomStartTime time="1,181,732.970 ns"></ZoomStartTime>
-      <ZoomEndTime time="1,183,319.971 ns"></ZoomEndTime>
-      <Cursor1Time time="1,200,000.000 ns"></Cursor1Time>
+      <ZoomStartTime time="14,934,204.930 ns"></ZoomStartTime>
+      <ZoomEndTime time="14,934,355.731 ns"></ZoomEndTime>
+      <Cursor1Time time="2,663,085.000 ns"></Cursor1Time>
    </zoom_setting>
    <column_width_setting>
-      <NameColumnWidth column_width="231"></NameColumnWidth>
+      <NameColumnWidth column_width="219"></NameColumnWidth>
       <ValueColumnWidth column_width="58"></ValueColumnWidth>
    </column_width_setting>
-   <WVObjectSize size="14" />
+   <WVObjectSize size="18" />
    <wvobject fp_name="/tb/clk" type="logic">
       <obj_property name="ElementShortName">clk</obj_property>
       <obj_property name="ObjectShortName">clk</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb/dut/controller/pixel_clk" type="logic">
-      <obj_property name="ElementShortName">pixel_clk</obj_property>
-      <obj_property name="ObjectShortName">pixel_clk</obj_property>
+   <wvobject fp_name="/tb/sw" type="array">
+      <obj_property name="ElementShortName">sw[7:0]</obj_property>
+      <obj_property name="ObjectShortName">sw[7:0]</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb/dut/controller/line_clk" type="logic">
-      <obj_property name="ElementShortName">line_clk</obj_property>
-      <obj_property name="ObjectShortName">line_clk</obj_property>
+   <wvobject fp_name="/tb/btn" type="array">
+      <obj_property name="ElementShortName">btn[3:0]</obj_property>
+      <obj_property name="ObjectShortName">btn[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/red" type="array">
+      <obj_property name="ElementShortName">red[3:0]</obj_property>
+      <obj_property name="ObjectShortName">red[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/green" type="array">
+      <obj_property name="ElementShortName">green[3:0]</obj_property>
+      <obj_property name="ObjectShortName">green[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/blue" type="array">
+      <obj_property name="ElementShortName">blue[3:0]</obj_property>
+      <obj_property name="ObjectShortName">blue[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/hsync" type="logic">
+      <obj_property name="ElementShortName">hsync</obj_property>
+      <obj_property name="ObjectShortName">hsync</obj_property>
+   </wvobject>
+   <wvobject fp_name="/tb/vsync" type="logic">
+      <obj_property name="ElementShortName">vsync</obj_property>
+      <obj_property name="ObjectShortName">vsync</obj_property>
    </wvobject>
    <wvobject fp_name="/tb/dut/controller/h" type="other">
       <obj_property name="ElementShortName">h</obj_property>
@@ -47,32 +68,28 @@
       <obj_property name="ElementShortName">v_cnt</obj_property>
       <obj_property name="ObjectShortName">v_cnt</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb/dut/x" type="other">
-      <obj_property name="ElementShortName">x</obj_property>
-      <obj_property name="ObjectShortName">x</obj_property>
+   <wvobject fp_name="/tb/dut/driver/x_i" type="other">
+      <obj_property name="ElementShortName">x_i</obj_property>
+      <obj_property name="ObjectShortName">x_i</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb/dut/y" type="other">
-      <obj_property name="ElementShortName">y</obj_property>
-      <obj_property name="ObjectShortName">y</obj_property>
+   <wvobject fp_name="/tb/dut/driver/y_i" type="other">
+      <obj_property name="ElementShortName">y_i</obj_property>
+      <obj_property name="ObjectShortName">y_i</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb/red" type="logic">
-      <obj_property name="ElementShortName">red</obj_property>
-      <obj_property name="ObjectShortName">red</obj_property>
+   <wvobject fp_name="/tb/dut/driver/state" type="other">
+      <obj_property name="ElementShortName">state</obj_property>
+      <obj_property name="ObjectShortName">state</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb/green" type="logic">
-      <obj_property name="ElementShortName">green</obj_property>
-      <obj_property name="ObjectShortName">green</obj_property>
+   <wvobject fp_name="/tb/dut/driver/read_data_i" type="array">
+      <obj_property name="ElementShortName">read_data_i[0:0]</obj_property>
+      <obj_property name="ObjectShortName">read_data_i[0:0]</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb/blue" type="logic">
-      <obj_property name="ElementShortName">blue</obj_property>
-      <obj_property name="ObjectShortName">blue</obj_property>
+   <wvobject fp_name="/tb/dut/driver/is_valid_inner_screen_pixel" type="logic">
+      <obj_property name="ElementShortName">is_valid_inner_screen_pixel</obj_property>
+      <obj_property name="ObjectShortName">is_valid_inner_screen_pixel</obj_property>
    </wvobject>
-   <wvobject fp_name="/tb/hsync" type="logic">
-      <obj_property name="ElementShortName">hsync</obj_property>
-      <obj_property name="ObjectShortName">hsync</obj_property>
-   </wvobject>
-   <wvobject fp_name="/tb/vsync" type="logic">
-      <obj_property name="ElementShortName">vsync</obj_property>
-      <obj_property name="ObjectShortName">vsync</obj_property>
+   <wvobject fp_name="/tb/dut/read_address" type="array">
+      <obj_property name="ElementShortName">read_address[17:0]</obj_property>
+      <obj_property name="ObjectShortName">read_address[17:0]</obj_property>
    </wvobject>
 </wave_config>

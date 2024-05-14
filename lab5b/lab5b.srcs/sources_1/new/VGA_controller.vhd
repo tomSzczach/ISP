@@ -115,8 +115,8 @@ begin
         if rising_edge (clk_i) then
             
             if (h = H_SCREEN_DATA) and (v = V_SCREEN_DATA) then
-                col_idx_o <= h_cnt;
-                row_idx_o <= v_cnt;
+                col_idx_o <= h_cnt - 1;
+                row_idx_o <= v_cnt - 1;
                 r_o <= r_i;
                 g_o <= g_i;
                 b_o <= b_i;
@@ -163,6 +163,7 @@ begin
             end if;
         end if;
     end process;
+    
 
     PIXEL_FREQ_CLOCK:
     process (clk_i)
