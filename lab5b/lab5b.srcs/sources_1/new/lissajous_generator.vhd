@@ -92,7 +92,7 @@ architecture Behavioral of lissajous_generator is
     begin
         x_scaled := signed(x_gen(10) & "00" & x_gen(9 downto 0));        -- value : x' = x              | range : [-1024,1024]
         x_scaled := x_scaled + x_scaled + x_scaled;                      -- value : x' = 3x        
-        x_scaled := "0000" & x_scaled(12 downto 4);                     -- value : x' = 3x/16           | range : [-192,192]
+        x_scaled := x_scaled(12) & "0000" & x_scaled(11 downto 4);       -- value : x' = 3x/16           | range : [-192,192]
         
         x_scaled_translated := x_scaled + 192;                          -- value : x' = (3x/16)+192     | range : [0,384]
         
@@ -109,7 +109,7 @@ architecture Behavioral of lissajous_generator is
     begin
         y_scaled := signed(y_gen(10) & "00" & y_gen(9 downto 0));        -- value : y' = y              | range : [-1024,1024]
         y_scaled := y_scaled + y_scaled + y_scaled;                      -- value : y' = 3y        
-        y_scaled := "0000" & y_scaled(12 downto 4);                     -- value : y' = 3y/16           | range : [-192,192]
+        y_scaled := y_scaled(12) & "0000" & y_scaled(11 downto 4);       -- value : y' = 3y/16           | range : [-192,192]
         
         y_scaled_translated := -y_scaled;                               -- value : y' = -3y/16          | range : [192,-192]
         y_scaled_translated := y_scaled_translated + 192;               -- value : y' = (-3x/16)+192    | range : [384,0]
