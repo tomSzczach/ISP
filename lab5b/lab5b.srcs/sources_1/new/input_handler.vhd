@@ -139,6 +139,10 @@ begin
     end process;
     
     
+    X_OFFSET_HANDLER:
+    x_offset_o <= "0000000";    -- offset of X channel must always be 0
+    
+    
     Y_OFFSET_HANDLER:
     process (clk_i) is
     begin
