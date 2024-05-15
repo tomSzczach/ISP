@@ -71,6 +71,10 @@ architecture Behavioral of top is
     signal screen_rst : STD_LOGIC := '0';
     signal singen_rst : STD_LOGIC := '0';
     
+    signal data_ch1 : STD_LOGIC_VECTOR(10 DOWNTO 0) := (others => '0');
+    signal data_ch2 : STD_LOGIC_VECTOR(10 DOWNTO 0) := (others => '0');
+    signal data_valid : STD_LOGIC := '0';
+    
     -- COMPONENTS --
     COMPONENT VGA_controller
         Port ( 
@@ -124,6 +128,20 @@ architecture Behavioral of top is
                 y_freq_o : out STD_LOGIC_VECTOR (7 downto 0);
                 x_offset_o : out STD_LOGIC_VECTOR (7 downto 0);
                 y_offset_o : out STD_LOGIC_VECTOR (7 downto 0)
+             );
+    END COMPONENT;
+    
+    COMPONENT lissajous_generator
+        Port ( 
+                clk_i : in STD_LOGIC;
+                singen_rst_i : in STD_LOGIC;
+                x_freq_i : in STD_LOGIC_VECTOR (7 downto 0);
+                y_freq_i : in STD_LOGIC_VECTOR (7 downto 0);
+                x_offset_i : in STD_LOGIC_VECTOR (7 downto 0);
+                y_offset_i : in STD_LOGIC_VECTOR (7 downto 0);
+                data_ch1_o : out STD_LOGIC_VECTOR(10 DOWNTO 0);
+                data_ch2_o : out STD_LOGIC_VECTOR(10 DOWNTO 0);
+                data_valid_o : out STD_LOGIC
              );
     END COMPONENT;
 
@@ -180,6 +198,19 @@ begin
             y_offset_o => y_offset
         );
         
+    generator: lissajous_generator
+        PORT MAP ( 
+            clk_i => clk_i,
+            singen_rst_i => singen_rst,
+            x_freq_i => x_freq,
+            y_freq_i => y_freq,
+            x_offset_i => x_offset,
+            y_offset_i => y_offset,
+            data_ch1_o => data_ch1,
+            data_ch2_o => data_ch2,
+            data_valid_o => data_valid
+         );
+         
     
     
     
