@@ -24,7 +24,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 -- Uncomment the following library declaration if using
 -- arithmetic functions with Signed or Unsigned values
---use IEEE.NUMERIC_STD.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
 -- Uncomment the following library declaration if instantiating
 -- any Xilinx leaf cells in this code.
@@ -40,9 +40,9 @@ entity lissajous_generator is
             y_freq_i : in STD_LOGIC_VECTOR (7 downto 0);
             x_offset_i : in STD_LOGIC_VECTOR (7 downto 0);
             y_offset_i : in STD_LOGIC_VECTOR (7 downto 0);
-            data_ch1_o : out STD_LOGIC_VECTOR(10 DOWNTO 0) := (others => '0');
-            data_ch2_o : out STD_LOGIC_VECTOR(10 DOWNTO 0) := (others => '0');
-            data_valid_o : out STD_LOGIC := '0'
+            x_pos_o : out NATURAL := 0;
+            y_pos_o : out NATURAL := 0;
+            is_pos_valid_o : out STD_LOGIC := '0'
          );
          
 end lissajous_generator;
@@ -78,22 +78,58 @@ architecture Behavioral of lissajous_generator is
                     DATA_CHANNEL_2
                 );
                     
-   -- CONSTANTS
-   constant C_init_reset_state : GENERATOR_RESET_STATE := IDLE;
-   constant C_init_data_state : GENERATOR_DATA_STATE := DATA_CHANNEL_1;
-   constant C_gen_reset_time : NATURAL := 2; -- in clock cycles - Low for a minimum of two cycles to guarantee that there is no violation of the AXI4-Stream protocol (DDS Compiler v6.0 29 PG141 January 21, 2021 www.xilinx.com Chapter 3: Designing with the Core on the core outputs)
-    
-   -- SIGNALS --    
-   signal reset_state : GENERATOR_RESET_STATE := C_init_reset_state;
-   signal data_state : GENERATOR_DATA_STATE := C_init_data_state;
+    -- CONSTANTS
+    constant C_init_reset_state : GENERATOR_RESET_STATE := IDLE;
+    constant C_init_data_state : GENERATOR_DATA_STATE := DATA_CHANNEL_1;
+    constant C_gen_reset_time : NATURAL := 2; -- in clock cycles - Low for a minimum of two cycles to guarantee that there is no violation of the AXI4-Stream protocol (DDS Compiler v6.0 29 PG141 January 21, 2021 www.xilinx.com Chapter 3: Designing with the Core on the core outputs)
    
-   signal is_gen_working : STD_LOGIC := '1';
-   signal isnt_gen_reset :  STD_LOGIC := '1';
-   signal gen_config_ch1_en : STD_LOGIC := '0';
-   signal gen_config_ch2_en : STD_LOGIC := '0';
-   signal gen_config_data : STD_LOGIC_VECTOR(31 DOWNTO 0) := (others => '0');
-   signal is_data_valid :  STD_LOGIC := '0';
-   signal data : STD_LOGIC_VECTOR(15 DOWNTO 0) := (others => '0');
+    -- FUNCTIONS
+    function F_transform_x(x_gen: STD_LOGIC_VECTOR(10 DOWNTO 0)) return NATURAL
+    is
+        variable x_scaled : SIGNED(12 downto 0) := (others => '0');
+        variable x_scaled_translated : SIGNED(12 downto 0) := (others => '0');
+        variable x_vga : NATURAL := 0;
+    begin
+        x_scaled := signed(x_gen(10) & "00" & x_gen(9 downto 0));        -- value : x' = x              | range : [-1024,1024]
+        x_scaled := x_scaled + x_scaled + x_scaled;                      -- value : x' = 3x        
+        x_scaled := "0000" & x_scaled(12 downto 4);                     -- value : x' = 3x/16           | range : [-192,192]
+        
+        x_scaled_translated := x_scaled + 192;                          -- value : x' = (3x/16)+192     | range : [0,384]
+        
+        x_vga := TO_INTEGER(unsigned(x_scaled_translated));
+        
+        return (x_vga);
+    end function F_transform_x;
+    
+    function F_transform_y(y_gen: STD_LOGIC_VECTOR(10 DOWNTO 0)) return NATURAL
+    is
+        variable y_scaled : SIGNED(12 downto 0) := (others => '0');
+        variable y_scaled_translated : SIGNED(12 downto 0) := (others => '0');
+        variable y_vga : NATURAL := 0;
+    begin
+        y_scaled := signed(y_gen(10) & "00" & y_gen(9 downto 0));        -- value : y' = y              | range : [-1024,1024]
+        y_scaled := y_scaled + y_scaled + y_scaled;                      -- value : y' = 3y        
+        y_scaled := "0000" & y_scaled(12 downto 4);                     -- value : y' = 3y/16           | range : [-192,192]
+        
+        y_scaled_translated := -y_scaled;                               -- value : y' = -3y/16          | range : [192,-192]
+        y_scaled_translated := y_scaled_translated + 192;               -- value : y' = (-3x/16)+192    | range : [384,0]
+        
+        y_vga := TO_INTEGER(unsigned(y_scaled_translated));
+        
+        return (y_vga);
+    end function F_transform_y;
+   
+    -- SIGNALS --    
+    signal reset_state : GENERATOR_RESET_STATE := C_init_reset_state;
+    signal data_state : GENERATOR_DATA_STATE := C_init_data_state;
+   
+    signal is_gen_working : STD_LOGIC := '1';
+    signal isnt_gen_reset :  STD_LOGIC := '1';
+    signal gen_config_ch1_en : STD_LOGIC := '0';
+    signal gen_config_ch2_en : STD_LOGIC := '0';
+    signal gen_config_data : STD_LOGIC_VECTOR(31 DOWNTO 0) := (others => '0');
+    signal is_data_valid :  STD_LOGIC := '0';
+    signal data : STD_LOGIC_VECTOR(15 DOWNTO 0) := (others => '0');
 
 begin
 
@@ -168,13 +204,13 @@ begin
                 case data_state is 
                     
                     when DATA_CHANNEL_1 =>
-                        data_ch1_o <= data(10 DOWNTO 0);
-                        data_valid_o <= '0';
+                        x_pos_o <= F_transform_x(data(10 DOWNTO 0));
+                        is_pos_valid_o <= '0';
                         data_state <= DATA_CHANNEL_2;
                     
                     when DATA_CHANNEL_2 =>
-                        data_ch2_o <= data(10 DOWNTO 0);
-                        data_valid_o <= '1';
+                        y_pos_o <= F_transform_y(data(10 DOWNTO 0));
+                        is_pos_valid_o <= '1';
                         data_state <= DATA_CHANNEL_1;
                     
                     when others => data_state <= C_init_data_state;

@@ -71,9 +71,9 @@ architecture Behavioral of top is
     signal screen_rst : STD_LOGIC := '0';
     signal singen_rst : STD_LOGIC := '0';
     
-    signal data_ch1 : STD_LOGIC_VECTOR(10 DOWNTO 0) := (others => '0');
-    signal data_ch2 : STD_LOGIC_VECTOR(10 DOWNTO 0) := (others => '0');
-    signal data_valid : STD_LOGIC := '0';
+    signal x_pos : NATURAL := 0;
+    signal y_pos : NATURAL := 0;
+    signal is_pos_valid : STD_LOGIC := '0';
     
     -- COMPONENTS --
     COMPONENT VGA_controller
@@ -139,9 +139,9 @@ architecture Behavioral of top is
                 y_freq_i : in STD_LOGIC_VECTOR (7 downto 0);
                 x_offset_i : in STD_LOGIC_VECTOR (7 downto 0);
                 y_offset_i : in STD_LOGIC_VECTOR (7 downto 0);
-                data_ch1_o : out STD_LOGIC_VECTOR(10 DOWNTO 0);
-                data_ch2_o : out STD_LOGIC_VECTOR(10 DOWNTO 0);
-                data_valid_o : out STD_LOGIC
+                x_pos_o : out NATURAL;
+                y_pos_o : out NATURAL;
+                is_pos_valid_o : out STD_LOGIC
              );
     END COMPONENT;
 
@@ -206,12 +206,11 @@ begin
             y_freq_i => y_freq,
             x_offset_i => x_offset,
             y_offset_i => y_offset,
-            data_ch1_o => data_ch1,
-            data_ch2_o => data_ch2,
-            data_valid_o => data_valid
+            x_pos_o => x_pos,
+            y_pos_o => y_pos,
+            is_pos_valid_o => is_pos_valid
          );
          
-    
     
     
     
