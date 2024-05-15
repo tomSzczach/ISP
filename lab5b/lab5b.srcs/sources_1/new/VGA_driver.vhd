@@ -75,6 +75,8 @@ architecture Behavioral of VGA_driver is
     signal state : DRIVER_STATE := C_init_state;
     
     signal is_valid_inner_screen_pixel : STD_LOGIC := '0';
+    
+    signal is_border :  STD_LOGIC := '0';
 
 begin
 
@@ -100,6 +102,13 @@ begin
                     
                 end if;
                 
+                -- border
+                if (C_x_start-1 = x_i or x_i = C_x_stop or C_y_start-1 = y_i or y_i = C_y_stop) then
+                    is_border <= '1';
+                else
+                    is_border <= '0';
+                end if;
+                
                 address := (inner_y * 384) + inner_x;
                 read_address_o <= STD_LOGIC_VECTOR( TO_UNSIGNED( address, read_address_o'length ));
             
@@ -119,12 +128,24 @@ begin
                     r_o <= "1111";
                     g_o <= "1111";
                     b_o <= "1111";
+                    
+                elsif (is_valid_inner_screen_pixel = '1') and (read_data_i = "0") then
+                    r_o <= "0000";
+                    g_o <= "0000";
+                    b_o <= "0000";
                             
                 else
                     r_o <= "0000";
                     g_o <= "0000";
                     b_o <= "0000";
                 
+                end if;
+                
+                if (is_border = '1') then
+                    r_o <= "1111";
+                    g_o <= "1111";
+                    b_o <= "1111";
+                    
                 end if;
             end if;        
         end if;
