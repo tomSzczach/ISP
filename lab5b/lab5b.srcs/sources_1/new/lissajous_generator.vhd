@@ -219,9 +219,9 @@ begin
             
             else
                 data_state <= C_init_data_state;
-                data_ch1_o <= (others => '0');
-                data_ch2_o <= (others => '0');
-                data_valid_o <= '0';
+                x_pos_o <= 0;
+                y_pos_o <= 0;
+                is_pos_valid_o <= '0';
                 
             end if;        
         end if;
