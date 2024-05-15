@@ -63,10 +63,10 @@ architecture Behavioral of top is
     signal write_address : STD_LOGIC_VECTOR (17 downto 0) := (others => '0');
     signal write_data : STD_LOGIC_VECTOR (0 downto 0) := "0";
     
-    signal x_freq : STD_LOGIC_VECTOR (7 downto 0) := "0000000";
-    signal y_freq : STD_LOGIC_VECTOR (7 downto 0) := "0000000";
-    signal x_offset : STD_LOGIC_VECTOR (7 downto 0) := "0000000";
-    signal y_offset : STD_LOGIC_VECTOR (7 downto 0) := "0000000";
+    signal x_freq : STD_LOGIC_VECTOR (7 downto 0) := "00000000";
+    signal y_freq : STD_LOGIC_VECTOR (7 downto 0) := "00000000";
+    signal x_offset : STD_LOGIC_VECTOR (7 downto 0) := "00000000";
+    signal y_offset : STD_LOGIC_VECTOR (7 downto 0) := "00000000";
     
     signal screen_rst : STD_LOGIC := '0';
     signal singen_rst : STD_LOGIC := '0';

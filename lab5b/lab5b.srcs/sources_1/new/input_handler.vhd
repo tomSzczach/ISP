@@ -39,10 +39,10 @@ entity input_handler is
             btn_i : in STD_LOGIC_VECTOR (3 downto 0);
             screen_rst_o : out STD_LOGIC := '0';
             singen_rst_o : out STD_LOGIC := '0';
-            x_freq_o : out STD_LOGIC_VECTOR (7 downto 0) := "0000000";
-            y_freq_o : out STD_LOGIC_VECTOR (7 downto 0) := "0000000";
-            x_offset_o : out STD_LOGIC_VECTOR (7 downto 0) := "0000000";
-            y_offset_o : out STD_LOGIC_VECTOR (7 downto 0) := "0000000"
+            x_freq_o : out STD_LOGIC_VECTOR (7 downto 0) := "00000000";
+            y_freq_o : out STD_LOGIC_VECTOR (7 downto 0) := "00000000";
+            x_offset_o : out STD_LOGIC_VECTOR (7 downto 0) := "00000000";
+            y_offset_o : out STD_LOGIC_VECTOR (7 downto 0) := "00000000"
          );
          
 end input_handler;
@@ -70,7 +70,7 @@ begin
 
     BUTTONS_STABILIZER:
     process (clk_i) is
-        variable delays_cntr : uint_vector (C_btn_num-1 to 0) := (0, 0, 0, 0);
+        variable delays_cntr : uint_vector (C_btn_num-1 downto 0) := (0, 0, 0, 0);
     begin
         if rising_edge(clk_i) then
         
@@ -140,7 +140,7 @@ begin
     
     
     X_OFFSET_HANDLER:
-    x_offset_o <= "0000000";    -- offset of X channel must always be 0
+    x_offset_o <= "00000000";    -- offset of X channel must always be 0
     
     
     Y_OFFSET_HANDLER:
