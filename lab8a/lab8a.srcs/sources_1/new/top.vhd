@@ -65,8 +65,8 @@ architecture Behavioral of top is
     
     signal x_freq : STD_LOGIC_VECTOR (7 downto 0) := "00000000";
     signal y_freq : STD_LOGIC_VECTOR (7 downto 0) := "00000000";
-    signal x_offset : STD_LOGIC_VECTOR (7 downto 0) := "00000000";
-    signal y_offset : STD_LOGIC_VECTOR (7 downto 0) := "00000000";
+    signal x_amp : STD_LOGIC_VECTOR (7 downto 0) := "00000000";
+    signal y_amp : STD_LOGIC_VECTOR (7 downto 0) := "00000000";
     
     signal screen_rst : STD_LOGIC := '0';
     signal gen_rst : STD_LOGIC := '0';
@@ -117,19 +117,19 @@ architecture Behavioral of top is
              );
     END COMPONENT;
     
---    COMPONENT input_handler
---        Port ( 
---                clk_i : in STD_LOGIC;
---                sw_i : in STD_LOGIC_VECTOR (7 downto 0);
---                btn_i : in STD_LOGIC_VECTOR (3 downto 0);
---                screen_rst_o : out STD_LOGIC;
---                singen_rst_o : out STD_LOGIC;
---                x_freq_o : out STD_LOGIC_VECTOR (7 downto 0);
---                y_freq_o : out STD_LOGIC_VECTOR (7 downto 0);
---                x_offset_o : out STD_LOGIC_VECTOR (7 downto 0);
---                y_offset_o : out STD_LOGIC_VECTOR (7 downto 0)
---             );
---    END COMPONENT;
+    COMPONENT input_handler
+        Port ( 
+                clk_i : in STD_LOGIC;
+                sw_i : in STD_LOGIC_VECTOR (7 downto 0);
+                btn_i : in STD_LOGIC_VECTOR (3 downto 0);
+                screen_rst_o : out STD_LOGIC;
+                gen_rst_o : out STD_LOGIC;
+                x_freq_o : out STD_LOGIC_VECTOR (7 downto 0);
+                y_freq_o : out STD_LOGIC_VECTOR (7 downto 0);
+                x_amp_o : out STD_LOGIC_VECTOR (7 downto 0);
+                y_amp_o : out STD_LOGIC_VECTOR (7 downto 0)
+             );
+    END COMPONENT;
     
 --    COMPONENT epitrochoid_generator
 --        Port ( 
@@ -198,18 +198,18 @@ begin
             b_o => b
         );
         
---    input: input_handler
---        PORT MAP (
---            clk_i => clk_i,
---            sw_i => sw_i,
---            btn_i => btn_i,
---            screen_rst_o => screen_rst,
---            gen_rst_o => gen_rst,
---            x_freq_o => x_freq,
---            y_freq_o => y_freq,
---            x_offset_o => x_offset,
---            y_offset_o => y_offset
---        );
+    input: input_handler
+        PORT MAP (
+            clk_i => clk_i,
+            sw_i => sw_i,
+            btn_i => btn_i,
+            screen_rst_o => screen_rst,
+            gen_rst_o => gen_rst,
+            x_freq_o => x_freq,
+            y_freq_o => y_freq,
+            x_amp_o => x_amp,
+            y_amp_o => y_amp
+        );
         
 --    generator: epitrochoid_generator
 --        PORT MAP ( 
