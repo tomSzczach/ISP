@@ -144,7 +144,20 @@ architecture Behavioral of top is
                 is_pos_valid_o : out STD_LOGIC
              );
     END COMPONENT;
-
+    
+    COMPONENT RAM_writer
+        Port (
+                clk_i : in STD_LOGIC;
+                screen_rst_i : in STD_LOGIC;
+                x_i : in NATURAL;
+                y_i : in NATURAL;
+                data_valid_i : in STD_LOGIC;
+                write_enable_o : out STD_LOGIC_VECTOR(0 DOWNTO 0);
+                write_address_o : out STD_LOGIC_VECTOR(17 DOWNTO 0);
+                write_data_o : out STD_LOGIC_VECTOR(0 DOWNTO 0)
+             );
+    END COMPONENT;
+   
 begin
 
     memory : video_mem
@@ -211,26 +224,36 @@ begin
             is_pos_valid_o => is_pos_valid
          );
          
+    writer: RAM_writer
+        PORT MAP (
+            clk_i => clk_i,
+            screen_rst_i => screen_rst,
+            x_i => x_pos,
+            y_i => y_pos,
+            data_valid_i => is_pos_valid,
+            write_enable_o => write_enable,
+            write_address_o => write_address,
+            write_data_o => write_data
+        );    
     
     
-    
-    filler:
-    process (clk_i)
-        variable addr : natural range 0 to 147455 := 0;
-    begin
-        if rising_edge (clk_i) then
-            write_enable <= "1";
-            write_address <= STD_LOGIC_VECTOR( TO_UNSIGNED( addr, write_address'length));
-            write_data <= "1";
+--    filler:
+--    process (clk_i)
+--        variable addr : natural range 0 to 147455 := 0;
+--    begin
+--        if rising_edge (clk_i) then
+--            write_enable <= "1";
+--            write_address <= STD_LOGIC_VECTOR( TO_UNSIGNED( addr, write_address'length));
+--            write_data <= "1";
             
-            if addr = 147455 then
-                addr := 0;
-            else
-                addr := addr + 1;
+--            if addr = 147455 then
+--                addr := 0;
+--            else
+--                addr := addr + 1;
                 
-            end if;
-        end if;
-    end process;
+--            end if;
+--        end if;
+--    end process;
     
 --    driver_rgb_fullscreen:
 --    process (clk_i)
