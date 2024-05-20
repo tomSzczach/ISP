@@ -86,35 +86,30 @@ architecture Behavioral of lissajous_generator is
     -- FUNCTIONS
     function F_transform_x(x_gen: STD_LOGIC_VECTOR(10 DOWNTO 0)) return NATURAL
     is
-        variable x_scaled : SIGNED(12 downto 0) := (others => '0');
-        variable x_scaled_translated : SIGNED(12 downto 0) := (others => '0');
+        variable x_transformed : UNSIGNED(15 downto 0) := (others => '0');
         variable x_vga : NATURAL := 0;
     begin
-        x_scaled := signed(x_gen(10) & "00" & x_gen(9 downto 0));        -- value : x' = x              | range : [-1024,1024]
-        x_scaled := x_scaled + x_scaled + x_scaled;                      -- value : x' = 3x        
-        x_scaled := x_scaled(12) & "0000" & x_scaled(11 downto 4);       -- value : x' = 3x/16           | range : [-192,192]
-        
-        x_scaled_translated := x_scaled + 192;                          -- value : x' = (3x/16)+192     | range : [0,384]
-        
-        x_vga := TO_INTEGER(unsigned(x_scaled_translated));
+        x_transformed := "00000" & unsigned((signed(x_gen) + 1024));    -- value : x' = x+1024         | range : [0,2048]
+        x_transformed := x_transformed + x_transformed + x_transformed;  -- value : x' = 3(x+1024)      | range : [0,2048*3]
+        x_transformed := "0000" & x_transformed(15 downto 4);            -- value : x' = 3(x+1024)/16   | range : [0,384]
+                
+        x_vga := TO_INTEGER(x_transformed);
         
         return (x_vga);
     end function F_transform_x;
     
     function F_transform_y(y_gen: STD_LOGIC_VECTOR(10 DOWNTO 0)) return NATURAL
     is
-        variable y_scaled : SIGNED(12 downto 0) := (others => '0');
-        variable y_scaled_translated : SIGNED(12 downto 0) := (others => '0');
+        variable y_transformed : UNSIGNED(15 downto 0) := (others => '0');
         variable y_vga : NATURAL := 0;
     begin
-        y_scaled := signed(y_gen(10) & "00" & y_gen(9 downto 0));        -- value : y' = y              | range : [-1024,1024]
-        y_scaled := y_scaled + y_scaled + y_scaled;                      -- value : y' = 3y        
-        y_scaled := y_scaled(12) & "0000" & y_scaled(11 downto 4);       -- value : y' = 3y/16           | range : [-192,192]
+        y_transformed := "00000" & unsigned((signed(y_gen) + 1024));    -- value : y' = y+1024              | range : [0,2048]
+        y_transformed := y_transformed + y_transformed + y_transformed;  -- value : y' = 3(y+1024)           | range : [0,2048*3]
+        y_transformed := "0000" & y_transformed(15 downto 4);            -- value : y' = 3(y+1024)/16        | range : [0,384]
+        --y_transformed := 383 - y_transformed;                            -- value : y' = 384 - 3(y+1024)/16  | range : [384, 0]
         
-        y_scaled_translated := -y_scaled;                               -- value : y' = -3y/16          | range : [192,-192]
-        y_scaled_translated := y_scaled_translated + 192;               -- value : y' = (-3x/16)+192    | range : [384,0]
-        
-        y_vga := TO_INTEGER(unsigned(y_scaled_translated));
+    
+        y_vga := TO_INTEGER(y_transformed);
         
         return (y_vga);
     end function F_transform_y;
@@ -179,12 +174,12 @@ begin
                 
                 when SET_CHANNEL_1 =>
                     gen_config_ch1_en <= '1';
-                    gen_config_data <= "00000000" & x_offset_i & "00000000" & x_freq_i;
+                    gen_config_data <= x_offset_i & "00000000" & "00000000" & x_freq_i;
                     reset_state <= SET_CHANNEL_2;
                     
                 when SET_CHANNEL_2 =>
                     gen_config_ch2_en <= '1';
-                    gen_config_data <= "00000000" & y_offset_i & "00000000" & y_freq_i;
+                    gen_config_data <= y_offset_i & "00000000" & "00000000" & y_freq_i;
                     reset_state <= IDLE;
                     
                 when others => reset_state <= C_init_reset_state;
