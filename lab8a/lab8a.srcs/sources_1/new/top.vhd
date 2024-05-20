@@ -131,19 +131,19 @@ architecture Behavioral of top is
              );
     END COMPONENT;
     
---    COMPONENT epitrochoid_generator
---        Port ( 
---                clk_i : in STD_LOGIC;
---                gen_rst_i : in STD_LOGIC;
---                x_freq_i : in STD_LOGIC_VECTOR (7 downto 0);
---                y_freq_i : in STD_LOGIC_VECTOR (7 downto 0);
---                x_offset_i : in STD_LOGIC_VECTOR (7 downto 0);
---                y_offset_i : in STD_LOGIC_VECTOR (7 downto 0);
---                x_pos_o : out NATURAL;
---                y_pos_o : out NATURAL;
---                is_pos_valid_o : out STD_LOGIC
---             );
---    END COMPONENT;
+    COMPONENT epitrochoid_generator
+        Port ( 
+                clk_i : in STD_LOGIC;
+                gen_rst_i : in STD_LOGIC;
+                x_freq_i : in STD_LOGIC_VECTOR (7 downto 0);
+                y_freq_i : in STD_LOGIC_VECTOR (7 downto 0);
+                x_amp_i : in STD_LOGIC_VECTOR (7 downto 0);
+                y_amp_i : in STD_LOGIC_VECTOR (7 downto 0);
+                x_pos_o : out NATURAL;
+                y_pos_o : out NATURAL;
+                is_pos_valid_o : out STD_LOGIC
+             );
+    END COMPONENT;
     
     COMPONENT RAM_writer
         Port (
