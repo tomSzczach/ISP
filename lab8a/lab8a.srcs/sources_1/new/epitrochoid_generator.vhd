@@ -35,11 +35,11 @@ entity epitrochoid_generator is
 
     Port ( 
             clk_i : in STD_LOGIC;
-            singen_rst_i : in STD_LOGIC;
-            x_freq_i : in STD_LOGIC_VECTOR (7 downto 0);
-            y_freq_i : in STD_LOGIC_VECTOR (7 downto 0);
-            x_amp_i : in STD_LOGIC_VECTOR (7 downto 0);
-            y_amp_i : in STD_LOGIC_VECTOR (7 downto 0);
+            gen_rst_i : in STD_LOGIC;
+            ch1_freq_i : in STD_LOGIC_VECTOR (7 downto 0);
+            ch2_freq_i : in STD_LOGIC_VECTOR (7 downto 0);
+            A_amp_i : in STD_LOGIC_VECTOR (7 downto 0);
+            B_amp_i : in STD_LOGIC_VECTOR (7 downto 0);
             x_pos_o : out NATURAL := 0;
             y_pos_o : out NATURAL := 0;
             is_pos_valid_o : out STD_LOGIC := '0'
@@ -70,7 +70,8 @@ architecture Behavioral of epitrochoid_generator is
                         IDLE,
                         RESET,
                         SET_CHANNEL_1,
-                        SET_CHANNEL_2
+                        SET_CHANNEL_2,
+                        SET_AMPLITUDES
                     );
                     
     type GENERATOR_DATA_STATE is (
@@ -84,40 +85,34 @@ architecture Behavioral of epitrochoid_generator is
     constant C_gen_reset_time : NATURAL := 2; -- in clock cycles - Low for a minimum of two cycles to guarantee that there is no violation of the AXI4-Stream protocol (DDS Compiler v6.0 29 PG141 January 21, 2021 www.xilinx.com Chapter 3: Designing with the Core on the core outputs)
    
     -- FUNCTIONS
-    function F_transform_x(x_gen: STD_LOGIC_VECTOR(10 DOWNTO 0); x_amp_i: STD_LOGIC_VECTOR (7 downto 0)) return NATURAL
-    is
-        variable x_scaled : SIGNED(12 downto 0) := (others => '0');
-        variable x_scaled_translated : SIGNED(12 downto 0) := (others => '0');
-        variable x_vga : NATURAL := 0;
-    begin
-        x_scaled := signed(x_gen(10) & "00" & x_gen(9 downto 0));        -- value : x' = x              | range : [-1024,1024]
-        x_scaled := x_scaled + x_scaled + x_scaled;                      -- value : x' = 3x        
-        x_scaled := x_scaled(12) & "0000" & x_scaled(11 downto 4);       -- value : x' = 3x/16           | range : [-192,192]
-        
-        x_scaled_translated := x_scaled + 192;                          -- value : x' = (3x/16)+192     | range : [0,384]
-        
-        x_vga := TO_INTEGER(unsigned(x_scaled_translated));
-        
-        return (x_vga);
-    end function F_transform_x;
     
-    function F_transform_y(y_gen: STD_LOGIC_VECTOR(10 DOWNTO 0); x_amp_i: STD_LOGIC_VECTOR (7 downto 0)) return NATURAL
+    function F_transform(
+        A_amp: STD_LOGIC_VECTOR (7 downto 0);
+        ch1_fun: STD_LOGIC_VECTOR(10 DOWNTO 0);
+        B_amp: STD_LOGIC_VECTOR (7 downto 0);
+        ch2_fun: STD_LOGIC_VECTOR(10 DOWNTO 0)
+    ) return INTEGER
     is
-        variable y_scaled : SIGNED(12 downto 0) := (others => '0');
-        variable y_scaled_translated : SIGNED(12 downto 0) := (others => '0');
-        variable y_vga : NATURAL := 0;
+        variable ch1_transformed : UNSIGNED(18 downto 0) := (others => '0');
+        variable ch2_transformed : UNSIGNED(18 downto 0) := (others => '0');
+        variable p : SIGNED(18 downto 0) := (others => '0');
+        variable p_vga : INTEGER := 0;
     begin
-        y_scaled := signed(y_gen(10) & "00" & y_gen(9 downto 0));        -- value : y' = y              | range : [-1024,1024]
-        y_scaled := y_scaled + y_scaled + y_scaled;                      -- value : y' = 3y        
-        y_scaled := y_scaled(12) & "0000" & y_scaled(11 downto 4);       -- value : y' = 3y/16           | range : [-192,192]
+        ch1_transformed := unsigned(A_amp) * unsigned(signed(ch1_fun) + 1024);  -- value : ch1' = A*(ch1+1024)            | range : [0,A*2048]
+        ch2_transformed := unsigned(B_amp) * unsigned(signed(ch2_fun) + 1024);  -- value : ch2' = B*(ch1+1024)            | range : [0,B*2048]                   
         
-        y_scaled_translated := -y_scaled;                               -- value : y' = -3y/16          | range : [192,-192]
-        y_scaled_translated := y_scaled_translated + 192;               -- value : y' = (-3x/16)+192    | range : [384,0]
+        ch1_transformed := "0000000000" & ch1_transformed(18 downto 10);         -- value : ch1' = (A/1024)*(ch1+1024)     | range : [0,2*A]
+        ch2_transformed := "0000000000" & ch2_transformed(18 downto 10);         -- value : ch2' = (B/1024)*(ch1+1024)     | range : [0,2*B]
         
-        y_vga := TO_INTEGER(unsigned(y_scaled_translated));
+        p := signed(ch1_transformed - ch2_transformed);                          -- value : p' = ch1'-ch2'                 | range : [0,2*(A-B)]
+        p := 192 + p - ( signed("0" & A_amp) - signed("0" & B_amp) );            -- value : p' = 192+(ch1'-ch2')-(A-B)      | range : [192-(A-B),192+(A-B)]
         
-        return (y_vga);
-    end function F_transform_y;
+        p_vga := TO_INTEGER(p);        
+        --  range : [ MAX( 0,192-(A-B) ) , MIN( 383,192+(A-B) ) ]
+        
+        return (p_vga);
+    end function F_transform;
+   
    
     -- SIGNALS --    
     signal reset_state : GENERATOR_RESET_STATE := C_init_reset_state;
@@ -130,6 +125,23 @@ architecture Behavioral of epitrochoid_generator is
     signal gen_config_data : STD_LOGIC_VECTOR(15 DOWNTO 0) := (others => '0');
     signal is_data_valid :  STD_LOGIC := '0';
     signal data : STD_LOGIC_VECTOR(31 DOWNTO 0) := (others => '0');
+    
+    signal is_pos_valid : STD_LOGIC := '0';
+    signal is_xy_valid : STD_LOGIC := '0';
+    
+    signal data_ch1 : STD_LOGIC_VECTOR(31 DOWNTO 0) := (others => '0');
+    alias cos_ch1: STD_LOGIC_VECTOR is data_ch1(10 DOWNTO 0);
+    alias sin_ch1: STD_LOGIC_VECTOR is data_ch1(26 DOWNTO 16);
+    
+    signal data_ch2 : STD_LOGIC_VECTOR(31 DOWNTO 0) := (others => '0');
+    alias cos_ch2: STD_LOGIC_VECTOR is data_ch2(10 DOWNTO 0);
+    alias sin_ch2: STD_LOGIC_VECTOR is data_ch2(26 DOWNTO 16);
+    
+    signal A_amp : STD_LOGIC_VECTOR (7 downto 0) := (others => '0');
+    signal B_amp : STD_LOGIC_VECTOR (7 downto 0) := (others => '0');
+    
+    signal x_pos : INTEGER := 0;
+    signal y_pos : INTEGER := 0;
 
 begin
 
@@ -161,7 +173,7 @@ begin
                     gen_config_ch2_en <= '0';
                     isnt_gen_reset <= '1';      
                              
-                    if singen_rst_i = '1' then
+                    if gen_rst_i = '1' then
                         reset_state <= RESET;
                         rst_time := C_gen_reset_time;
                     end if;
@@ -179,12 +191,17 @@ begin
                 
                 when SET_CHANNEL_1 =>
                     gen_config_ch1_en <= '1';
-                    gen_config_data <= "00000000" & x_freq_i;
+                    gen_config_data <= "00000000" & ch1_freq_i;
                     reset_state <= SET_CHANNEL_2;
                     
                 when SET_CHANNEL_2 =>
                     gen_config_ch2_en <= '1';
-                    gen_config_data <= "00000000" & y_freq_i;
+                    gen_config_data <= "00000000" & ch2_freq_i;
+                    reset_state <= SET_AMPLITUDES;
+                    
+                when SET_AMPLITUDES =>
+                    A_amp <= A_amp_i;
+                    B_amp <= B_amp_i;
                     reset_state <= IDLE;
                     
                 when others => reset_state <= C_init_reset_state;
@@ -204,15 +221,13 @@ begin
                 case data_state is 
                     
                     when DATA_CHANNEL_1 =>
-                        --x_pos_o <= F_transform_x(data(10 DOWNTO 0), x_amp_i);
-                        x_pos_o <= 0;
-                        is_pos_valid_o <= '0';
+                        is_pos_valid <= '0';
+                        data_ch1 <= data;
                         data_state <= DATA_CHANNEL_2;
                     
                     when DATA_CHANNEL_2 =>
-                        --y_pos_o <= F_transform_y(data(10 DOWNTO 0), y_amp_i);
-                        y_pos_o <= 0;
-                        is_pos_valid_o <= '1';
+                        is_pos_valid <= '1';
+                        data_ch2 <= data;
                         data_state <= DATA_CHANNEL_1;
                     
                     when others => data_state <= C_init_data_state;
@@ -221,12 +236,70 @@ begin
             
             else
                 data_state <= C_init_data_state;
+                is_pos_valid <= '0';
+                
+            end if;        
+        end if;
+    end process;
+    
+    
+    POSITION_TRANSFORMATOR:
+    process (clk_i)
+    begin
+        if rising_edge (clk_i) then
+        
+            if (is_pos_valid = '1') then
+            
+                x_pos <= F_transform(
+                    A_amp,
+                    cos_ch1,  -- cos from channel 1
+                    B_amp,
+                    cos_ch2   -- cos from channel 2
+                    );
+                    
+                y_pos <= F_transform(
+                    A_amp,
+                    sin_ch1,  -- sin from channel 1
+                    B_amp,
+                    sin_ch2   -- sin from channel 2
+                    );
+
+                is_xy_valid <= '1';  
+            
+            else
+                x_pos <= 0;
+                y_pos <= 0;
+                is_xy_valid <= '0';
+                
+            end if;        
+        end if;
+    end process;
+    
+    
+    POSITION_VALIDATOR:
+    process (clk_i)
+    begin
+        if rising_edge (clk_i) then
+        
+            if (is_xy_valid = '1') then
+                    
+                if (0 <= x_pos) and (x_pos <= 383) and (0 <= y_pos) and (y_pos <= 383) then 
+                    x_pos_o <= x_pos;
+                    y_pos_o <= y_pos;
+                    is_pos_valid_o <= '1';
+                else
+                    x_pos_o <= 0;
+                    y_pos_o <= 0;
+                    is_pos_valid_o <= '0';
+                end if;    
+            
+            else
                 x_pos_o <= 0;
                 y_pos_o <= 0;
                 is_pos_valid_o <= '0';
                 
             end if;        
         end if;
-    end process;
+    end process;    
 
 end Behavioral;
