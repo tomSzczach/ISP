@@ -125,7 +125,7 @@ begin
             if (state = GET_DATA) then
             
                 if (is_valid_inner_screen_pixel = '1') and (read_data_i = "1") then
-                    r_o <= "1111";
+                    r_o <= "0000";
                     g_o <= "1111";
                     b_o <= "1111";
                     
