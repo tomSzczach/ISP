@@ -39,10 +39,10 @@ entity input_handler is
             btn_i : in STD_LOGIC_VECTOR (3 downto 0);
             screen_rst_o : out STD_LOGIC := '0';
             gen_rst_o : out STD_LOGIC := '0';
-            x_freq_o : out STD_LOGIC_VECTOR (7 downto 0) := "00000000";
-            y_freq_o : out STD_LOGIC_VECTOR (7 downto 0) := "00000000";
-            x_amp_o : out STD_LOGIC_VECTOR (7 downto 0) := "00000000";
-            y_amp_o : out STD_LOGIC_VECTOR (7 downto 0) := "00000000"
+            ch1_freq_o : out STD_LOGIC_VECTOR (7 downto 0) := "00000000";
+            ch2_freq_o : out STD_LOGIC_VECTOR (7 downto 0) := "00000000";
+            A_amp_o : out STD_LOGIC_VECTOR (7 downto 0) := "00000000";
+            B_amp_o : out STD_LOGIC_VECTOR (7 downto 0) := "00000000"
          );
          
 end input_handler;
@@ -113,26 +113,26 @@ begin
     end process;
     
     
-    X_FREQUENCY_HANDLER:
+    CHANNEL_1_FREQUENCY_HANDLER:
     process (clk_i) is
     begin
         if rising_edge(clk_i) then
         
             if (btns_stable(C_btn_BTNL) = '1') then -- button BTNL
-                x_freq_o <= sw_i;   -- set frequency of X channel
+                ch1_freq_o <= sw_i;   -- set frequency of channel 1
             
             end if;
         end if;
     end process;
 
 
-    Y_FREQUENCY_HANDLER:
+    CHANNEL_2_FREQUENCY_HANDLER:
     process (clk_i) is
     begin
         if rising_edge(clk_i) then
         
             if (btns_stable(C_btn_BTNC) = '1') then -- button BTNC
-                y_freq_o <= sw_i;   -- set frequency of Y channel
+                ch2_freq_o <= sw_i;   -- set frequency of channel 2
             
             end if;
         end if;
@@ -145,8 +145,8 @@ begin
         if rising_edge(clk_i) then
         
             if (btns_stable(C_btn_BTNR) = '1') then -- button BTNR
-                x_amp_o <= sw_i(7 downto 4) & "0000";   -- set ampitude of X channel  -- *16
-                y_amp_o <= "00" & sw_i(3 downto 0) & "00";   -- set ampitude of Y channel  -- *4
+                A_amp_o <= sw_i(7 downto 4) & "0000";   -- set ampitude of channel A  -- *16
+                B_amp_o <= "00" & sw_i(3 downto 0) & "00";   -- set ampitude of channel B  -- *4
             
             end if;
         end if;

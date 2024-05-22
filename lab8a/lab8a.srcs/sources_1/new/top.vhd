@@ -63,10 +63,10 @@ architecture Behavioral of top is
     signal write_address : STD_LOGIC_VECTOR (17 downto 0) := (others => '0');
     signal write_data : STD_LOGIC_VECTOR (0 downto 0) := "0";
     
-    signal x_freq : STD_LOGIC_VECTOR (7 downto 0) := "00000000";
-    signal y_freq : STD_LOGIC_VECTOR (7 downto 0) := "00000000";
-    signal x_amp : STD_LOGIC_VECTOR (7 downto 0) := "00000000";
-    signal y_amp : STD_LOGIC_VECTOR (7 downto 0) := "00000000";
+    signal ch1_freq : STD_LOGIC_VECTOR (7 downto 0) := "00000000";
+    signal ch2_freq : STD_LOGIC_VECTOR (7 downto 0) := "00000000";
+    signal A_amp : STD_LOGIC_VECTOR (7 downto 0) := "00000000";
+    signal B_amp : STD_LOGIC_VECTOR (7 downto 0) := "00000000";
     
     signal screen_rst : STD_LOGIC := '0';
     signal gen_rst : STD_LOGIC := '0';
@@ -124,10 +124,10 @@ architecture Behavioral of top is
                 btn_i : in STD_LOGIC_VECTOR (3 downto 0);
                 screen_rst_o : out STD_LOGIC;
                 gen_rst_o : out STD_LOGIC;
-                x_freq_o : out STD_LOGIC_VECTOR (7 downto 0);
-                y_freq_o : out STD_LOGIC_VECTOR (7 downto 0);
-                x_amp_o : out STD_LOGIC_VECTOR (7 downto 0);
-                y_amp_o : out STD_LOGIC_VECTOR (7 downto 0)
+                ch1_freq_o : out STD_LOGIC_VECTOR (7 downto 0);
+                ch2_freq_o : out STD_LOGIC_VECTOR (7 downto 0);
+                A_amp_o : out STD_LOGIC_VECTOR (7 downto 0);
+                B_amp_o : out STD_LOGIC_VECTOR (7 downto 0)
              );
     END COMPONENT;
     
@@ -135,10 +135,10 @@ architecture Behavioral of top is
         Port ( 
                 clk_i : in STD_LOGIC;
                 gen_rst_i : in STD_LOGIC;
-                x_freq_i : in STD_LOGIC_VECTOR (7 downto 0);
-                y_freq_i : in STD_LOGIC_VECTOR (7 downto 0);
-                x_amp_i : in STD_LOGIC_VECTOR (7 downto 0);
-                y_amp_i : in STD_LOGIC_VECTOR (7 downto 0);
+                ch1_freq_i : in STD_LOGIC_VECTOR (7 downto 0);
+                ch2_freq_i : in STD_LOGIC_VECTOR (7 downto 0);
+                A_amp_i : in STD_LOGIC_VECTOR (7 downto 0);
+                B_amp_i : in STD_LOGIC_VECTOR (7 downto 0);
                 x_pos_o : out NATURAL;
                 y_pos_o : out NATURAL;
                 is_pos_valid_o : out STD_LOGIC
@@ -205,24 +205,24 @@ begin
             btn_i => btn_i,
             screen_rst_o => screen_rst,
             gen_rst_o => gen_rst,
-            x_freq_o => x_freq,
-            y_freq_o => y_freq,
-            x_amp_o => x_amp,
-            y_amp_o => y_amp
+            ch1_freq_o => ch1_freq,
+            ch2_freq_o => ch2_freq,
+            A_amp_o => A_amp,
+            B_amp_o => B_amp
         );
         
---    generator: epitrochoid_generator
---        PORT MAP ( 
---            clk_i => clk_i,
---            gen_rst_i => gen_rst,
---            x_freq_i => x_freq,
---            y_freq_i => y_freq,
---            x_offset_i => x_offset,
---            y_offset_i => y_offset,
---            x_pos_o => x_pos,
---            y_pos_o => y_pos,
---            is_pos_valid_o => is_pos_valid
---         );
+    generator: epitrochoid_generator
+        PORT MAP ( 
+            clk_i => clk_i,
+            gen_rst_i => gen_rst,
+            ch1_freq_i => ch1_freq,
+            ch2_freq_i => ch2_freq,
+            A_amp_i => A_amp,
+            B_amp_i => B_amp,
+            x_pos_o => x_pos,
+            y_pos_o => y_pos,
+            is_pos_valid_o => is_pos_valid
+         );
          
     writer: RAM_writer
         PORT MAP (
