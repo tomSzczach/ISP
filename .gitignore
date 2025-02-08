@@ -25,3 +25,5 @@
 
 # ip core
 **/ip/*/*
+# BUT keep .xci configuration files
+!**/ip/*/*.xci
